@@ -389,7 +389,6 @@
     window.fbGet = get;
     window.fbSet = set;
 
-    // Cek otomatis lisensi lokal saat halaman pertama kali dibuka
     const localSavedKey = localStorage.getItem('aji_audio_saved_key');
     if (localSavedKey) {
         document.getElementById('input-license-key').value = localSavedKey;
@@ -412,7 +411,6 @@
 
     let internalGenNode = null; 
 
-    // GENERATOR ID PERANGKAT UNIK (DEVICE LOCK ENGINE)
     function ambilAtauBuatDeviceId() {
         let devId = localStorage.getItem('aji_audio_device_id');
         if (!devId) {
@@ -423,7 +421,6 @@
     }
     const ID_PERANGKAT_SEKARANG = ambilAtauBuatDeviceId();
 
-    // FUNGSI UNTUK MENDAPATKAN WAKTU SERVER AKURAT (MENCEGAH CURANG JAM HP)
     async function dapatkanWaktuOnlineAkurat() {
         try {
             const respon = await fetch('https://worldtimeapi.org/api/timezone/Asia/Jakarta');
@@ -434,7 +431,7 @@
         } catch (e) {
             console.warn("Gagal mengambil waktu online, menggunakan fallback sistem lokal.");
         }
-        return new Date(); // Fallback jika internet bermasalah
+        return new Date();
     }
 
     function triggerActivationNotice() {
@@ -481,7 +478,7 @@
 
                 div.innerHTML = `
                     <span id="eq-val-${ch}-${idx}" class="eq-rt-val">0dB</span>
-                    <input type="range" id="eq-${ch}-${idx}" min="-12" max="12" step="0.5" value="0">
+                    <input type="range" id="eq-${ch}-${idx}" data-ch="${ch}" data-idx="${idx}" min="-12" max="12" step="0.5" value="0">
                     <span class="eq-freq-lbl">${freq}${ (!isProUser && idx > 4) ? '🔒' : '' }</span>
                 `;
                 eqContainer.appendChild(div);
@@ -490,7 +487,6 @@
 
         applyVisualLocks();
     }
-    buildInterface();
 
     function mulaiHitungMundur(expiredDateStr) {
         if (countdownInterval) clearInterval(countdownInterval);
@@ -521,7 +517,6 @@
         }, 1000);
     }
 
-    // LOGIKA PENGECEKAN & PENGUNCIAN PERANGKAT ONLINE (ANTI-CHEAT & 1 DEVICE LOCK)
     async function checkLicenseOnline(key) {
         if(!key) return;
         
@@ -541,7 +536,7 @@
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 const expiredDate = new Date(data.expired_date);
-                const hariIni = await dapatkanWaktuOnlineAkurat(); // Menggunakan Waktu Server API Akurat
+                const hariIni = await dapatkanWaktuOnlineAkurat();
 
                 if (data.status === "banned" || data.status === "blacklist") {
                     isProUser = false;
@@ -553,18 +548,16 @@
                     return;
                 }
 
-                // VALIDASI DEVICE LOCKING LOGIC
                 if (data.device_id && data.device_id !== "" && data.device_id !== ID_PERANGKAT_SEKARANG) {
                     isProUser = false;
                     if (countdownInterval) clearInterval(countdownInterval);
                     countdownDisp.innerHTML = "❌ KUNCI TERPAKAI DI HP/LAPTOP LAIN!";
                     countdownDisp.style.color = "var(--led-red)";
-                    alert("❌ AKSES DITOLAK!\nLisensi ini sudah terikat otomatis pada perangkat pelanggan lain.\nSatu lisensi hanya valid untuk 1 Perangkat.");
+                    alert("❌ AKSES DITOLAK!\nLisensi ini sudah terikat otomatis pada perangkat pelanggan lain.");
                     buildInterface();
                     return;
                 }
 
-                // Jika kolom device_id di Firebase kosong, kunci otomatis ke HP/Laptop ini
                 if (!data.device_id || data.device_id === "") {
                     data.device_id = ID_PERANGKAT_SEKARANG;
                     await window.fbSet(window.fbRef(window.fbDatabase, 'activation_keys/' + key + '/device_id'), ID_PERANGKAT_SEKARANG);
@@ -576,11 +569,11 @@
                     if (countdownInterval) clearInterval(countdownInterval);
                     countdownDisp.innerHTML = "❌ LISENSI EXPIRED! KEMBALI KE MODE FREE";
                     countdownDisp.style.color = "var(--led-red)";
-                    alert(`⏰ LISENSI EXPIRED!\nMasa aktif premium Anda telah habis pada tanggal: ${data.expired_date}.\nSistem kembali ke mode FREE.`);
+                    alert(`⏰ LISENSI EXPIRED!\nMasa aktif premium Anda telah habis pada tanggal: ${data.expired_date}.`);
                     buildInterface();
                 } else {
                     isProUser = true;
-                    localStorage.setItem('aji_audio_saved_key', key); // Simpan key agar otomatis login next time
+                    localStorage.setItem('aji_audio_saved_key', key);
                     alert(`✨ LISENSI VALID! PRO UNLOCKED\nSelamat Datang ${data.owner || 'User Pro'}!\nAktif sampai: ${data.expired_date}`);
                     buildInterface(); 
                     mulaiHitungMundur(data.expired_date); 
@@ -599,15 +592,6 @@
             alert("⚠️ Gagal memproses data keamanan. Cek jaringan atau lisensi Anda!");
         }
     }
-
-    document.getElementById('btn-activate-license').addEventListener('click', () => {
-        const key = document.getElementById('input-license-key').value.trim();
-        if(key === "") {
-            alert("Silakan isi Key Lisensi terlebih dahulu!");
-            return;
-        }
-        checkLicenseOnline(key);
-    });
 
     let audioCtx, audioSource, masterGainNode, nodeL, nodeR;
     const audioPlayer = document.getElementById('audio-player');
@@ -758,7 +742,7 @@
                         this.lpf1.Q.setValueAtTime(0.707, t); this.lpf2.Q.setValueAtTime(0.707, t);
                     } else if (slopeType === "bw48") {
                         if(!isHpfDeactivated) this.hpf2.type = "highpass"; if(!isLpfDeactivated) this.lpf2.type = "lowpass";
-                        this.hpf1.Q.setValueAtTime(1.0, t); this.hpf2.Q.setValueAtTime(1.0, t);
+                        this.hpf1.Q.setValueAtTime(1.0, t); this.lpf1.Q.setValueAtTime(1.0, t);
                         this.lpf1.Q.setValueAtTime(1.0, t); this.lpf2.Q.setValueAtTime(1.0, t);
                     }
                 }
@@ -987,15 +971,26 @@
         document.getElementById('lim-atk-l').addEventListener('input', (e) => { if(checkLimiterLock('lim-atk-l', 30)) { document.getElementById('lim-atk-disp-l').innerText = e.target.value + " ms"; if(nodeL) nodeL.updateLimiterHardware(); } });
         document.getElementById('lim-rel-l').addEventListener('input', (e) => { if(checkLimiterLock('lim-rel-l', 500)) { document.getElementById('lim-rel-disp-l').innerText = e.target.value + " ms"; if(nodeL) nodeL.updateLimiterHardware(); } });
 
-        eqFreqsL.forEach((_, idx) => {
-            document.getElementById(`eq-l-${idx}`).addEventListener('input', function() {
-                if (!isProUser && idx > 4) {
-                    this.value = 0;
-                    triggerActivationNotice();
-                    return;
+        // EVENT DELEGATION UNTUK MATRIKS SLIDER EQ
+        ['l', 'r'].forEach(ch => {
+            const container = document.getElementById(`eq-sliders-${ch}`);
+            container.addEventListener('input', function(e) {
+                if (e.target && e.target.type === 'range') {
+                    const idx = parseInt(e.target.getAttribute('data-idx'));
+                    const chKey = e.target.getAttribute('data-ch');
+                    
+                    if (!isProUser && idx > 4) {
+                        e.target.value = 0;
+                        triggerActivationNotice();
+                        return;
+                    }
+                    
+                    let v = parseFloat(e.target.value);
+                    document.getElementById(`eq-val-${chKey}-${idx}`).innerText = (v > 0 ? `+${v}` : v) + "dB";
+                    
+                    if (chKey === 'l' && nodeL) nodeL.updateEQGains();
+                    if (chKey === 'r' && nodeR) nodeR.updateEQGains();
                 }
-                let v = parseFloat(this.value); document.getElementById(`eq-val-l-${idx}`).innerText = (v > 0 ? `+${v}` : v) + "dB";
-                if(nodeL) nodeL.updateEQGains();
             });
         });
 
@@ -1029,18 +1024,6 @@
         document.getElementById('lim-thold-r').addEventListener('input', (e) => { if(checkLimiterLock('lim-thold-r', -3.0)) { document.getElementById('lim-thold-disp-r').innerText = parseFloat(e.target.value).toFixed(1) + " dB"; if(nodeR) nodeR.updateLimiterHardware(); } });
         document.getElementById('lim-atk-r').addEventListener('input', (e) => { if(checkLimiterLock('lim-atk-r', 3)) { document.getElementById('lim-atk-disp-r').innerText = e.target.value + " ms"; if(nodeR) nodeR.updateLimiterHardware(); } });
         document.getElementById('lim-rel-r').addEventListener('input', (e) => { if(checkLimiterLock('lim-rel-r', 60)) { document.getElementById('lim-rel-disp-r').innerText = e.target.value + " ms"; if(nodeR) nodeR.updateLimiterHardware(); } });
-
-        eqFreqsR.forEach((_, idx) => {
-            document.getElementById(`eq-r-${idx}`).addEventListener('input', function() {
-                if (!isProUser && idx > 4) {
-                    this.value = 0;
-                    triggerActivationNotice();
-                    return;
-                }
-                let v = parseFloat(this.value); document.getElementById(`eq-val-r-${idx}`).innerText = (v > 0 ? `+${v}` : v) + "dB";
-                if(nodeR) nodeR.updateEQGains();
-            });
-        });
 
         document.getElementById('mute-ch-l').addEventListener('click', function() { muteState.l.ch = !muteState.l.ch; this.classList.toggle('active', muteState.l.ch); this.innerText = muteState.l.ch ? "MUTED" : "MUTE"; if(nodeL) nodeL.setMute(muteState.l.ch); });
         document.getElementById('mute-ch-r').addEventListener('click', function() { muteState.r.ch = !muteState.r.ch; this.classList.toggle('active', muteState.r.ch); this.innerText = muteState.r.ch ? "MUTED" : "MUTE"; if(nodeR) nodeR.setMute(muteState.r.ch); });
@@ -1223,6 +1206,8 @@
         renderFrame();
     }
 
+    // ====== URUTAN YANG BENAR: BANGUN INTERFACE DULU BARU IKAT EVENT-NYA ======
+    buildInterface();
     connectUIElements();
 
     document.getElementById('audio-file').addEventListener('change', (e) => {
