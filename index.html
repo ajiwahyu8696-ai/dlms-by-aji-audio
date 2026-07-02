@@ -345,6 +345,13 @@
     window.fbRef = ref;
     window.fbGet = get;
     window.fbSet = set;
+
+    // Cek otomatis lisensi lokal saat halaman pertama kali dibuka
+    const localSavedKey = localStorage.getItem('aji_audio_saved_key');
+    if (localSavedKey) {
+        document.getElementById('input-license-key').value = localSavedKey;
+        setTimeout(() => { checkLicenseOnline(localSavedKey); }, 1500);
+    }
 </script>
 
 <script>
@@ -372,6 +379,20 @@
         return devId;
     }
     const ID_PERANGKAT_SEKARANG = ambilAtauBuatDeviceId();
+
+    // FUNGSI UNTUK MENDAPATKAN WAKTU SERVER AKURAT (MENCEGAH CURANG JAM HP)
+    async function dapatkanWaktuOnlineAkurat() {
+        try {
+            const respon = await fetch('https://worldtimeapi.org/api/timezone/Asia/Jakarta');
+            if (respon.ok) {
+                const data = await respon.json();
+                return new Date(data.datetime);
+            }
+        } catch (e) {
+            console.warn("Gagal mengambil waktu online, menggunakan fallback sistem lokal.");
+        }
+        return new Date(); // Fallback jika internet bermasalah
+    }
 
     function triggerActivationNotice() {
         alert("🔒 PRO VERSION EXCLUSIVE\n\nFitur ini terkunci. Hubungi AD AUDIO PRODUCTION / AJI LUMAJANG untuk membeli lisensi penuh Pro Engine.");
@@ -457,7 +478,7 @@
         }, 1000);
     }
 
-    // LOGIKA PENGECEKAN & PENGUNCIAN PERANGKAT ONLINE
+    // LOGIKA PENGECEKAN & PENGUNCIAN PERANGKAT ONLINE (ANTI-CHEAT & 1 DEVICE LOCK)
     async function checkLicenseOnline(key) {
         if(!key) return;
         
@@ -467,6 +488,8 @@
         }
 
         const countdownDisp = document.getElementById('license-countdown-disp');
+        countdownDisp.innerHTML = "🔄 MEMVALIDASI LISENSI ONLINE...";
+        countdownDisp.style.color = "var(--led-orange)";
 
         try {
             const keyRef = window.fbRef(window.fbDatabase, 'activation_keys/' + key);
@@ -475,7 +498,7 @@
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 const expiredDate = new Date(data.expired_date);
-                const hariIni = new Date();
+                const hariIni = await dapatkanWaktuOnlineAkurat(); // Menggunakan Waktu Server API Akurat
 
                 if (data.status === "banned" || data.status === "blacklist") {
                     isProUser = false;
@@ -491,14 +514,14 @@
                 if (data.device_id && data.device_id !== "" && data.device_id !== ID_PERANGKAT_SEKARANG) {
                     isProUser = false;
                     if (countdownInterval) clearInterval(countdownInterval);
-                    countdownDisp.innerHTML = "❌ LISENSI TERKUNCI DI HP LAIN!";
+                    countdownDisp.innerHTML = "❌ KUNCI TERPAKAI DI HP/LAPTOP LAIN!";
                     countdownDisp.style.color = "var(--led-red)";
-                    alert("❌ AKSES DITOLAK!\nLisensi ini sudah terikat otomatis pada perangkat pelanggan lain.");
+                    alert("❌ AKSES DITOLAK!\nLisensi ini sudah terikat otomatis pada perangkat pelanggan lain.\nSatu lisensi hanya valid untuk 1 Perangkat.");
                     buildInterface();
                     return;
                 }
 
-                // Jika kolom device_id di Firebase kosong, kunci otomatis ke HP ini
+                // Jika kolom device_id di Firebase kosong, kunci otomatis ke HP/Laptop ini
                 if (!data.device_id || data.device_id === "") {
                     data.device_id = ID_PERANGKAT_SEKARANG;
                     await window.fbSet(window.fbRef(window.fbDatabase, 'activation_keys/' + key + '/device_id'), ID_PERANGKAT_SEKARANG);
@@ -514,6 +537,7 @@
                     buildInterface();
                 } else {
                     isProUser = true;
+                    localStorage.setItem('aji_audio_saved_key', key); // Simpan key agar otomatis login next time
                     alert(`✨ LISENSI VALID! PRO UNLOCKED\nSelamat Datang ${data.owner || 'User Pro'}!\nAktif sampai: ${data.expired_date}`);
                     buildInterface(); 
                     mulaiHitungMundur(data.expired_date); 
@@ -811,7 +835,7 @@
             b0 = 0.99886 * b0 + white * 0.0555179; b1 = 0.99332 * b1 + white * 0.0750759; b2 = 0.96900 * b2 + white * 0.1538520; b3 = 0.86650 * b3 + white * 0.3104856; b4 = 0.55000 * b4 + white * 0.5329522; b5 = -0.7616 * b5 - white * 0.0168980;
             output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362; output[i] *= 0.11; b6 = white * 0.115926;
         }
-        let pinkNoiseSource = apple = audioCtx.createBufferSource();
+        let pinkNoiseSource = audioCtx.createBufferSource();
         pinkNoiseSource.buffer = noiseBuffer; pinkNoiseSource.loop = true;
         return pinkNoiseSource;
     }
