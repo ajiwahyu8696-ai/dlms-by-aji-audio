@@ -319,6 +319,7 @@
                 <div class="vu-scale"><span>-40</span><span>-24</span><span>-12</span><span>-6</span><span>-3</span><span>0</span><span>+3</span><span>CLIP</span></div>
             </div>
             <div class="control-row"><label>Fader Gain</label><input type="range" id="gain-r" min="-40" max="12" step="0.5" value="0"><span class="val-disp" id="gain-disp-r">0.0 dB</span></div>
+            .ch-r { border-top: 4px solid var(--accent-pink); }
             <div class="control-row panel-block delay-highlight"><label style="color: var(--accent-pink); font-weight: bold;">TIME DELAY</label><input type="range" id="delay-r" min="0" max="50" step="0.1" value="0"><span class="val-disp" id="delay-disp-r" style="color: var(--accent-pink);">0.0 ms</span></div>
             
             <div class="control-row panel-block echo-block" style="border: 1px solid rgba(57, 255, 20, 0.3); background: #0c140f; grid-template-columns: 100px 1fr 50px 70px; gap:5px;">
@@ -366,6 +367,7 @@
     </div>
 </div>
 
+<!-- INTEGRASI FIREBASE OFFICIAL MODULAR SDK -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
     import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
@@ -438,21 +440,47 @@
         alert("🔒 PRO VERSION EXCLUSIVE\n\nFitur ini terkunci. Hubungi AD AUDIO PRODUCTION / AJI LUMAJANG untuk membeli lisensi penuh Pro Engine.");
     }
 
+    // UPDATE VISUAL ANTI GUNTING ELEMEN
     function applyVisualLocks() {
         if (!isProUser) {
             document.getElementById('panel-generator-group').classList.add('locked-feature');
             document.getElementById('panel-limiter-l').classList.add('locked-feature');
             document.getElementById('panel-limiter-r').classList.add('locked-feature');
             document.querySelectorAll('.lock-badge').forEach(b => b.style.display = 'block');
+            
+            // Pasang lock visual ke baris slider EQ premium secara kaku
+            ['l', 'r'].forEach(ch => {
+                for(let i = 5; i < 15; i++) {
+                    const sliderNode = document.getElementById(`eq-${ch}-${i}`);
+                    if(sliderNode && sliderNode.parentElement) {
+                        sliderNode.parentElement.classList.add('locked-feature');
+                        const labelNode = sliderNode.parentElement.querySelector('.eq-freq-lbl');
+                        if(labelNode && !labelNode.innerText.includes('🔒')) labelNode.innerText += '🔒';
+                    }
+                }
+            });
         } else {
             document.getElementById('panel-generator-group').classList.remove('locked-feature');
             document.getElementById('panel-limiter-l').classList.remove('locked-feature');
             document.getElementById('panel-limiter-r').classList.remove('locked-feature');
             document.querySelectorAll('.lock-badge').forEach(b => b.style.display = 'none');
+            
+            // Lepaskan gembok visual tanpa membongkar DOM elemen
+            ['l', 'r'].forEach(ch => {
+                for(let i = 5; i < 15; i++) {
+                    const sliderNode = document.getElementById(`eq-${ch}-${i}`);
+                    if(sliderNode && sliderNode.parentElement) {
+                        sliderNode.parentElement.classList.remove('locked-feature');
+                        const labelNode = sliderNode.parentElement.querySelector('.eq-freq-lbl');
+                        if(labelNode) labelNode.innerText = labelNode.innerText.replace('🔒', '');
+                    }
+                }
+            });
         }
     }
 
-    function buildInterface() {
+    // HANYA UNTUK MEMBANGUN STRUKTUR SEKALI DI AWAL LOADING
+    function buildInterfaceAwal() {
         ['l', 'r'].forEach(ch => {
             const vuBar = document.getElementById(`vu-${ch}`);
             vuBar.innerHTML = ''; 
@@ -471,20 +499,14 @@
             freqs.forEach((freq, idx) => {
                 const div = document.createElement('div');
                 div.classList.add('eq-ch');
-                
-                if(!isProUser && idx > 4) {
-                    div.classList.add('locked-feature');
-                }
-
                 div.innerHTML = `
                     <span id="eq-val-${ch}-${idx}" class="eq-rt-val">0dB</span>
                     <input type="range" id="eq-${ch}-${idx}" data-ch="${ch}" data-idx="${idx}" min="-12" max="12" step="0.5" value="0">
-                    <span class="eq-freq-lbl">${freq}${ (!isProUser && idx > 4) ? '🔒' : '' }</span>
+                    <span class="eq-freq-lbl">${freq}</span>
                 `;
                 eqContainer.appendChild(div);
             });
         });
-
         applyVisualLocks();
     }
 
@@ -503,7 +525,7 @@
                 isProUser = false;
                 countdownDisp.innerHTML = "❌ MASA AKTIF HABIS! SILAKAN UPGRADE";
                 countdownDisp.style.color = "var(--led-red)";
-                buildInterface();
+                applyVisualLocks();
                 return;
             }
 
@@ -544,7 +566,7 @@
                     countdownDisp.innerHTML = "❌ LISENSI DIBLOKIR / BANNED!";
                     countdownDisp.style.color = "var(--led-red)";
                     alert("❌ LISENSI DIBLOKIR!\nKey ini telah dimasukkan ke dalam daftar hitam.");
-                    buildInterface();
+                    applyVisualLocks();
                     return;
                 }
 
@@ -554,7 +576,7 @@
                     countdownDisp.innerHTML = "❌ KUNCI TERPAKAI DI HP/LAPTOP LAIN!";
                     countdownDisp.style.color = "var(--led-red)";
                     alert("❌ AKSES DITOLAK!\nLisensi ini sudah terikat otomatis pada perangkat pelanggan lain.");
-                    buildInterface();
+                    applyVisualLocks();
                     return;
                 }
 
@@ -570,12 +592,12 @@
                     countdownDisp.innerHTML = "❌ LISENSI EXPIRED! KEMBALI KE MODE FREE";
                     countdownDisp.style.color = "var(--led-red)";
                     alert(`⏰ LISENSI EXPIRED!\nMasa aktif premium Anda telah habis pada tanggal: ${data.expired_date}.`);
-                    buildInterface();
+                    applyVisualLocks();
                 } else {
                     isProUser = true;
                     localStorage.setItem('aji_audio_saved_key', key);
                     alert(`✨ LISENSI VALID! PRO UNLOCKED\nSelamat Datang ${data.owner || 'User Pro'}!\nAktif sampai: ${data.expired_date}`);
-                    buildInterface(); 
+                    applyVisualLocks(); 
                     mulaiHitungMundur(data.expired_date); 
                     if(audioCtx && nodeL && nodeR) { syncAllHardwareSlidersToDSP(); }
                 }
@@ -585,7 +607,7 @@
                 countdownDisp.innerHTML = "❌ LISENSI TIDAK VALID!";
                 countdownDisp.style.color = "var(--led-red)";
                 alert("❌ Kunci Lisensi Tidak Ditemukan!");
-                buildInterface();
+                applyVisualLocks();
             }
         } catch (error) {
             console.error(error);
@@ -971,7 +993,7 @@
         document.getElementById('lim-atk-l').addEventListener('input', (e) => { if(checkLimiterLock('lim-atk-l', 30)) { document.getElementById('lim-atk-disp-l').innerText = e.target.value + " ms"; if(nodeL) nodeL.updateLimiterHardware(); } });
         document.getElementById('lim-rel-l').addEventListener('input', (e) => { if(checkLimiterLock('lim-rel-l', 500)) { document.getElementById('lim-rel-disp-l').innerText = e.target.value + " ms"; if(nodeL) nodeL.updateLimiterHardware(); } });
 
-        // EVENT DELEGATION UNTUK MATRIKS SLIDER EQ
+        // EVENT DELEGATION INDUK PERMANEN UNTUK MATRIX EQ
         ['l', 'r'].forEach(ch => {
             const container = document.getElementById(`eq-sliders-${ch}`);
             container.addEventListener('input', function(e) {
@@ -1206,8 +1228,8 @@
         renderFrame();
     }
 
-    // ====== URUTAN YANG BENAR: BANGUN INTERFACE DULU BARU IKAT EVENT-NYA ======
-    buildInterface();
+    // INISIALISASI STRUKTUR UTAMA SEJAK AWAL LOADING
+    buildInterfaceAwal();
     connectUIElements();
 
     document.getElementById('audio-file').addEventListener('change', (e) => {
