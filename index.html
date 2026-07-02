@@ -61,7 +61,7 @@
         .dlms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         @media (max-width: 950px) { .dlms-grid { grid-template-columns: 1fr; } }
 
-        .channel-card ch-l { background: var(--bg-strip); border: 2px solid var(--border-color); border-radius: 6px; padding: 18px; }
+        .channel-card { background: var(--bg-strip); border: 2px solid var(--border-color); border-radius: 6px; padding: 18px; }
         .ch-l { border-top: 4px solid var(--accent-blue); }
         .ch-r { border-top: 4px solid var(--accent-pink); }
 
@@ -96,10 +96,54 @@
         .eq-header-block { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; }
         .eq-title { font-size: 0.75rem; color: #8b9bb4; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
         
-        .eq-wrapper { display: flex; gap: 5px; position: relative; height: 180px; padding-top: 5px; }
-        .eq-sliders { display: flex; justify-content: space-between; height: 130px; flex: 1; gap: 2px; overflow: visible; }
-        .eq-ch { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 18px; position: relative; height: 100%; transition: all 0.3s ease; }
-        .eq-ch input[type="range"] { -webkit-appearance: slider-vertical; width: 6px; height: 100%; background: #161b22; cursor: ns-resize; margin: 4px 0; }
+        .eq-wrapper { 
+            display: flex; 
+            gap: 5px; 
+            position: relative; 
+            height: 200px; 
+            padding-top: 5px; 
+            overflow-x: auto; 
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-green) #070a0e;
+        }
+        .eq-wrapper::-webkit-scrollbar {
+            height: 5px;
+        }
+        .eq-wrapper::-webkit-scrollbar-thumb {
+            background: var(--accent-green);
+            border-radius: 3px;
+        }
+
+        .eq-sliders { 
+            display: flex; 
+            justify-content: space-between; 
+            height: 150px; 
+            flex: 1; 
+            gap: 4px; 
+            min-width: 550px; 
+        }
+
+        .eq-ch { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            flex: 1; 
+            min-width: 32px; 
+            position: relative; 
+            height: 100%; 
+            transition: all 0.3s ease; 
+        }
+
+        .eq-ch input[type="range"] { 
+            -webkit-appearance: slider-vertical; 
+            writing-mode: vertical-lr; 
+            direction: rtl;
+            width: 12px; 
+            height: 100%; 
+            background: #161b22; 
+            cursor: ns-resize; 
+            margin: 4px 0; 
+        }
         
         .eq-ch .eq-freq-lbl { font-size: 0.55rem; color: #8b9bb4; transform: rotate(-40deg); display: inline-block; white-space: nowrap; font-weight: bold; margin-top: 12px; }
         .eq-ch .eq-rt-val { font-size: 0.55rem; color: var(--accent-green); font-weight: bold; display: block; height: 12px; text-align: center; line-height: 12px; }
@@ -322,7 +366,6 @@
     </div>
 </div>
 
-<!-- INTEGRASI FIREBASE OFFICIAL MODULAR SDK -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
     import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
