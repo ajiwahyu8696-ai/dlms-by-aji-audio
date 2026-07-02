@@ -61,7 +61,7 @@
         .dlms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         @media (max-width: 950px) { .dlms-grid { grid-template-columns: 1fr; } }
 
-        .channel-card { background: var(--bg-strip); border: 2px solid var(--border-color); border-radius: 6px; padding: 18px; }
+        .channel-card ch-l { background: var(--bg-strip); border: 2px solid var(--border-color); border-radius: 6px; padding: 18px; }
         .ch-l { border-top: 4px solid var(--accent-blue); }
         .ch-r { border-top: 4px solid var(--accent-pink); }
 
@@ -322,6 +322,7 @@
     </div>
 </div>
 
+<!-- INTEGRASI FIREBASE OFFICIAL MODULAR SDK -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
     import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
@@ -344,16 +345,6 @@
     window.fbRef = ref;
     window.fbGet = get;
     window.fbSet = set;
-
-    const savedKey = localStorage.getItem("pro_license_key_aji_audio");
-    if(savedKey) {
-        document.getElementById('input-license-key').value = savedKey;
-        setTimeout(() => {
-            if(window.checkLicenseOnline) {
-                window.checkLicenseOnline(savedKey, true); 
-            }
-        }, 1500);
-    }
 </script>
 
 <script>
@@ -370,6 +361,17 @@
     };
 
     let internalGenNode = null; 
+
+    // GENERATOR ID PERANGKAT UNIK (DEVICE LOCK ENGINE)
+    function ambilAtauBuatDeviceId() {
+        let devId = localStorage.getItem('aji_audio_device_id');
+        if (!devId) {
+            devId = 'DEV-' + Math.random().toString(36).substring(2, 11).toUpperCase() + '-' + Date.now().toString(36).toUpperCase();
+            localStorage.setItem('aji_audio_device_id', devId);
+        }
+        return devId;
+    }
+    const ID_PERANGKAT_SEKARANG = ambilAtauBuatDeviceId();
 
     function triggerActivationNotice() {
         alert("🔒 PRO VERSION EXCLUSIVE\n\nFitur ini terkunci. Hubungi AD AUDIO PRODUCTION / AJI LUMAJANG untuk membeli lisensi penuh Pro Engine.");
@@ -424,6 +426,7 @@
 
         applyVisualLocks();
     }
+    buildInterface();
 
     function mulaiHitungMundur(expiredDateStr) {
         if (countdownInterval) clearInterval(countdownInterval);
@@ -438,11 +441,9 @@
             if (selisih <= 0) {
                 clearInterval(countdownInterval);
                 isProUser = false;
-                localStorage.removeItem("pro_license_key_aji_audio");
                 countdownDisp.innerHTML = "❌ MASA AKTIF HABIS! SILAKAN UPGRADE";
                 countdownDisp.style.color = "var(--led-red)";
                 buildInterface();
-                connectUIElements();
                 return;
             }
 
@@ -456,11 +457,12 @@
         }, 1000);
     }
 
-    async function checkLicenseOnline(key, silentCheck = false) {
+    // LOGIKA PENGECEKAN & PENGUNCIAN PERANGKAT ONLINE
+    async function checkLicenseOnline(key) {
         if(!key) return;
         
         if(!window.fbDatabase) {
-            if(!silentCheck) alert("⚠️ Sistem Firebase belum siap, silakan coba lagi dalam beberapa detik.");
+            alert("⚠️ Sistem Firebase belum siap, silakan coba lagi dalam beberapa detik.");
             return;
         }
 
@@ -477,50 +479,68 @@
 
                 if (data.status === "banned" || data.status === "blacklist") {
                     isProUser = false;
-                    localStorage.removeItem("pro_license_key_aji_audio");
                     if (countdownInterval) clearInterval(countdownInterval);
                     countdownDisp.innerHTML = "❌ LISENSI DIBLOKIR / BANNED!";
                     countdownDisp.style.color = "var(--led-red)";
-                    if(!silentCheck) alert("❌ LISENSI DIBLOKIR!\nKey ini telah dimasukkan ke dalam daftar hitam.");
+                    alert("❌ LISENSI DIBLOKIR!\nKey ini telah dimasukkan ke dalam daftar hitam.");
                     buildInterface();
-                    connectUIElements();
                     return;
+                }
+
+                // VALIDASI DEVICE LOCKING LOGIC
+                if (data.device_id && data.device_id !== "" && data.device_id !== ID_PERANGKAT_SEKARANG) {
+                    isProUser = false;
+                    if (countdownInterval) clearInterval(countdownInterval);
+                    countdownDisp.innerHTML = "❌ LISENSI TERKUNCI DI HP LAIN!";
+                    countdownDisp.style.color = "var(--led-red)";
+                    alert("❌ AKSES DITOLAK!\nLisensi ini sudah terikat otomatis pada perangkat pelanggan lain.");
+                    buildInterface();
+                    return;
+                }
+
+                // Jika kolom device_id di Firebase kosong, kunci otomatis ke HP ini
+                if (!data.device_id || data.device_id === "") {
+                    data.device_id = ID_PERANGKAT_SEKARANG;
+                    await window.fbSet(window.fbRef(window.fbDatabase, 'activation_keys/' + key + '/device_id'), ID_PERANGKAT_SEKARANG);
+                    alert("📱 LINKING DEVICE SUCCESS!\nLisensi aman dan telah berhasil dikunci ke perangkat ini.");
                 }
 
                 if (hariIni > expiredDate) {
                     isProUser = false;
-                    localStorage.removeItem("pro_license_key_aji_audio");
                     if (countdownInterval) clearInterval(countdownInterval);
                     countdownDisp.innerHTML = "❌ LISENSI EXPIRED! KEMBALI KE MODE FREE";
                     countdownDisp.style.color = "var(--led-red)";
-                    if(!silentCheck) alert(`⏰ LISENSI EXPIRED!\nMasa aktif premium Anda telah habis pada tanggal: ${data.expired_date}.\nSistem kembali ke mode FREE.`);
+                    alert(`⏰ LISENSI EXPIRED!\nMasa aktif premium Anda telah habis pada tanggal: ${data.expired_date}.\nSistem kembali ke mode FREE.`);
                     buildInterface();
-                    connectUIElements();
                 } else {
                     isProUser = true;
-                    localStorage.setItem("pro_license_key_aji_audio", key);
-                    if(!silentCheck) alert(`✨ LISENSI VALID! PRO UNLOCKED\nSelamat Datang ${data.owner || 'User Pro'}!\nAktif sampai: ${data.expired_date}`);
+                    alert(`✨ LISENSI VALID! PRO UNLOCKED\nSelamat Datang ${data.owner || 'User Pro'}!\nAktif sampai: ${data.expired_date}`);
                     buildInterface(); 
-                    connectUIElements(); 
                     mulaiHitungMundur(data.expired_date); 
                     if(audioCtx && nodeL && nodeR) { syncAllHardwareSlidersToDSP(); }
                 }
             } else {
                 isProUser = false;
-                localStorage.removeItem("pro_license_key_aji_audio");
                 if (countdownInterval) clearInterval(countdownInterval);
                 countdownDisp.innerHTML = "❌ LISENSI TIDAK VALID!";
                 countdownDisp.style.color = "var(--led-red)";
-                if(!silentCheck) alert("❌ Kunci Lisensi Tidak Ditemukan!");
+                alert("❌ Kunci Lisensi Tidak Ditemukan!");
                 buildInterface();
-                connectUIElements();
             }
         } catch (error) {
             console.error(error);
-            if(!silentCheck) alert("⚠️ Gagal memproses data keamanan. Cek jaringan atau lisensi Anda!");
+            alert("⚠️ Gagal memproses data keamanan. Cek jaringan atau lisensi Anda!");
         }
     }
-    window.checkLicenseOnline = checkLicenseOnline;
+
+    document.getElementById('btn-activate-license').addEventListener('click', () => {
+        const key = document.getElementById('input-license-key').value.trim();
+        if(key === "") {
+            alert("Silakan isi Key Lisensi terlebih dahulu!");
+            return;
+        }
+        checkLicenseOnline(key);
+    });
 
     let audioCtx, audioSource, masterGainNode, nodeL, nodeR;
     const audioPlayer = document.getElementById('audio-player');
@@ -565,7 +585,7 @@
                 eq.gain.value = 0;
                 this.eqFilters.push(eq);
                 lastNode.connect(eq);
-                lastNode = eq; 
+                lastNode = eq;
             });
 
             this.limiter = this.ctx.createDynamicsCompressor();
@@ -574,7 +594,7 @@
             this.analyser = this.ctx.createAnalyser();
             this.analyser.fftSize = 64;
 
-            lastNode.connect(this.analyser); 
+            lastNode.connect(this.analyser);
             this.analyser.connect(this.limiter);
 
             this.gainNode.connect(this.phaseNode);
@@ -791,7 +811,7 @@
             b0 = 0.99886 * b0 + white * 0.0555179; b1 = 0.99332 * b1 + white * 0.0750759; b2 = 0.96900 * b2 + white * 0.1538520; b3 = 0.86650 * b3 + white * 0.3104856; b4 = 0.55000 * b4 + white * 0.5329522; b5 = -0.7616 * b5 - white * 0.0168980;
             output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362; output[i] *= 0.11; b6 = white * 0.115926;
         }
-        let pinkNoiseSource = audioCtx.createBufferSource();
+        let pinkNoiseSource = apple = audioCtx.createBufferSource();
         pinkNoiseSource.buffer = noiseBuffer; pinkNoiseSource.loop = true;
         return pinkNoiseSource;
     }
@@ -852,144 +872,149 @@
     function connectUIElements() {
         const calculateGain = (db) => Math.pow(10, db / 20);
 
-        const oldBtn = document.getElementById('btn-activate-license');
-        const newBtn = oldBtn.cloneNode(true);
-        oldBtn.parentNode.replaceChild(newBtn, oldBtn);
-
-        newBtn.addEventListener('click', () => {
-            const key = document.getElementById('input-license-key').value.trim();
-            if(key === "") { alert("Silakan isi Key Lisensi terlebih dahulu!"); return; }
-            checkLicenseOnline(key);
-        });
-
-        document.getElementById('master-gain').oninput = (e) => {
+        document.getElementById('master-gain').addEventListener('input', (e) => {
             document.getElementById('master-gain-disp').innerText = parseFloat(e.target.value).toFixed(1) + " dB";
             if (masterGainNode) masterGainNode.gain.setValueAtTime(calculateGain(parseFloat(e.target.value)), audioCtx.currentTime);
-        };
+        });
 
-        document.getElementById('gen-type').onchange = updateInternalGenerator;
-        document.getElementById('gen-sine-freq').oninput = (e) => {
+        document.getElementById('gen-type').addEventListener('change', updateInternalGenerator);
+        document.getElementById('gen-sine-freq').addEventListener('input', (e) => {
             document.getElementById('gen-sine-disp').innerText = e.target.value + " Hz";
             if (internalGenNode && internalGenNode.frequency) internalGenNode.frequency.setValueAtTime(e.target.value, audioCtx.currentTime);
-        };
+        });
 
         document.querySelectorAll('.btn-mode').forEach(btn => {
-            btn.onclick = function() {
+            btn.addEventListener('click', function() {
                 document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
                 this.classList.add('active'); currentMode = this.getAttribute('data-mode'); applyCurrentMode();
-            };
+            });
         });
 
         const updateCHL = () => {
             let hpf = parseInt(document.getElementById('hpf-l').value); let lpf = parseInt(document.getElementById('lpf-l').value); let slope = document.getElementById('slope-l').value;
-            if (!isProUser && slope !== "lr12" && slope !== "bw12") { document.getElementById('slope-l').value = "lr12"; triggerActivationNotice(); return; }
+            if (!isProUser && slope !== "lr12" && slope !== "bw12") {
+                document.getElementById('slope-l').value = "lr12";
+                triggerActivationNotice();
+                return;
+            }
             if(nodeL) nodeL.updateCrossover(hpf, lpf, slope);
         };
-        document.getElementById('gain-l').oninput = (e) => {
+        document.getElementById('gain-l').addEventListener('input', (e) => {
             let v = parseFloat(e.target.value); document.getElementById('gain-disp-l').innerText = v.toFixed(1) + " dB";
             if(nodeL) { nodeL.currentGainVal = calculateGain(v); if (!muteState.l.ch) nodeL.gainNode.gain.setValueAtTime(nodeL.currentGainVal, audioCtx.currentTime); }
-        };
-        document.getElementById('hpf-l').oninput = (e) => { document.getElementById('hpf-disp-l').innerText = e.target.value + " Hz"; updateCHL(); };
-        document.getElementById('lpf-l').oninput = (e) => { document.getElementById('lpf-disp-l').innerText = e.target.value + " Hz"; updateCHL(); };
-        document.getElementById('slope-l').onchange = updateCHL;
+        });
+        document.getElementById('hpf-l').addEventListener('input', (e) => { document.getElementById('hpf-disp-l').innerText = e.target.value + " Hz"; updateCHL(); });
+        document.getElementById('lpf-l').addEventListener('input', (e) => { document.getElementById('lpf-disp-l').innerText = e.target.value + " Hz"; updateCHL(); });
+        document.getElementById('slope-l').addEventListener('change', updateCHL);
 
         const checkLimiterLock = (elId, defaultVal) => {
-            if (!isProUser) { document.getElementById(elId).value = defaultVal; triggerActivationNotice(); return false; }
+            if (!isProUser) {
+                document.getElementById(elId).value = defaultVal;
+                triggerActivationNotice();
+                return false;
+            }
             return true;
         };
 
-        document.getElementById('lim-thold-l').oninput = (e) => { if(checkLimiterLock('lim-thold-l', -1.0)) { document.getElementById('lim-thold-disp-l').innerText = parseFloat(e.target.value).toFixed(1) + " dB"; if(nodeL) nodeL.updateLimiterHardware(); } };
-        document.getElementById('lim-atk-l').oninput = (e) => { if(checkLimiterLock('lim-atk-l', 30)) { document.getElementById('lim-atk-disp-l').innerText = e.target.value + " ms"; if(nodeL) nodeL.updateLimiterHardware(); } };
-        document.getElementById('lim-rel-l').oninput = (e) => { if(checkLimiterLock('lim-rel-l', 500)) { document.getElementById('lim-rel-disp-l').innerText = e.target.value + " ms"; if(nodeL) nodeL.updateLimiterHardware(); } };
+        document.getElementById('lim-thold-l').addEventListener('input', (e) => { if(checkLimiterLock('lim-thold-l', -1.0)) { document.getElementById('lim-thold-disp-l').innerText = parseFloat(e.target.value).toFixed(1) + " dB"; if(nodeL) nodeL.updateLimiterHardware(); } });
+        document.getElementById('lim-atk-l').addEventListener('input', (e) => { if(checkLimiterLock('lim-atk-l', 30)) { document.getElementById('lim-atk-disp-l').innerText = e.target.value + " ms"; if(nodeL) nodeL.updateLimiterHardware(); } });
+        document.getElementById('lim-rel-l').addEventListener('input', (e) => { if(checkLimiterLock('lim-rel-l', 500)) { document.getElementById('lim-rel-disp-l').innerText = e.target.value + " ms"; if(nodeL) nodeL.updateLimiterHardware(); } });
 
         eqFreqsL.forEach((_, idx) => {
-            const sl = document.getElementById(`eq-l-${idx}`);
-            if(sl) {
-                sl.oninput = function() {
-                    if (!isProUser && idx > 4) { this.value = 0; triggerActivationNotice(); return; }
-                    let v = parseFloat(this.value); document.getElementById(`eq-val-l-${idx}`).innerText = (v > 0 ? `+${v}` : v) + "dB";
-                    if(nodeL) nodeL.updateEQGains();
-                };
-            }
+            document.getElementById(`eq-l-${idx}`).addEventListener('input', function() {
+                if (!isProUser && idx > 4) {
+                    this.value = 0;
+                    triggerActivationNotice();
+                    return;
+                }
+                let v = parseFloat(this.value); document.getElementById(`eq-val-l-${idx}`).innerText = (v > 0 ? `+${v}` : v) + "dB";
+                if(nodeL) nodeL.updateEQGains();
+            });
         });
 
         const updateCHR = () => {
             let hpf = parseInt(document.getElementById('hpf-r').value); let lpf = parseInt(document.getElementById('lpf-r').value); let slope = document.getElementById('slope-r').value;
-            if (!isProUser && slope !== "lr12" && slope !== "bw12") { document.getElementById('slope-r').value = "lr12"; triggerActivationNotice(); return; }
+            if (!isProUser && slope !== "lr12" && slope !== "bw12") {
+                document.getElementById('slope-r').value = "lr12";
+                triggerActivationNotice();
+                return;
+            }
             if(nodeR) nodeR.updateCrossover(hpf, lpf, slope);
         };
-        document.getElementById('gain-r').oninput = (e) => {
+        document.getElementById('gain-r').addEventListener('input', (e) => {
             let v = parseFloat(e.target.value); document.getElementById('gain-disp-r').innerText = v.toFixed(1) + " dB";
             if(nodeR) { nodeR.currentGainVal = calculateGain(v); if (!muteState.r.ch) nodeR.gainNode.gain.setValueAtTime(nodeR.currentGainVal, audioCtx.currentTime); }
-        };
-        document.getElementById('delay-r').oninput = (e) => {
+        });
+        document.getElementById('delay-r').addEventListener('input', (e) => {
             let msVal = parseFloat(e.target.value); document.getElementById('delay-disp-r').innerText = msVal.toFixed(1) + " ms";
             if (nodeR && nodeR.delayNode) nodeR.delayNode.delayTime.setValueAtTime(msVal / 1000, audioCtx.currentTime);
-        };
-        document.getElementById('echo-feedback-r').oninput = (e) => { document.getElementById('echo-disp-r').innerText = e.target.value + " %"; if(nodeR) nodeR.updateEcho(); };
-        document.getElementById('echo-wet-r').oninput = (e) => { document.getElementById('echo-wet-disp').innerText = e.target.value + " %"; if(nodeR) nodeR.updateEcho(); };
-        document.getElementById('hpf-r').oninput = (e) => { 
+        });
+        document.getElementById('echo-feedback-r').addEventListener('input', (e) => { document.getElementById('echo-disp-r').innerText = e.target.value + " %"; if(nodeR) nodeR.updateEcho(); });
+        document.getElementById('echo-wet-r').addEventListener('input', (e) => { document.getElementById('echo-wet-disp').innerText = e.target.value + " %"; if(nodeR) nodeR.updateEcho(); });
+        document.getElementById('hpf-r').addEventListener('input', (e) => { 
             let v = parseInt(e.target.value); document.getElementById('hpf-disp-r').innerText = v >= 1000 ? (v/1000).toFixed(2) + " kHz" : v + " Hz"; updateCHR(); 
-        };
-        document.getElementById('lpf-r').oninput = (e) => {
+        });
+        document.getElementById('lpf-r').addEventListener('input', (e) => {
             let v = parseInt(e.target.value); document.getElementById('lpf-disp-r').innerText = v >= 1000 ? (v/1000).toFixed(1) + " kHz" : v + " Hz"; updateCHR();
-        };
-        document.getElementById('slope-r').onchange = updateCHR;
+        });
+        document.getElementById('slope-r').addEventListener('change', updateCHR);
 
-        document.getElementById('lim-thold-r').oninput = (e) => { if(checkLimiterLock('lim-thold-r', -3.0)) { document.getElementById('lim-thold-disp-r').innerText = parseFloat(e.target.value).toFixed(1) + " dB"; if(nodeR) nodeR.updateLimiterHardware(); } };
-        document.getElementById('lim-atk-r').oninput = (e) => { if(checkLimiterLock('lim-atk-r', 3)) { document.getElementById('lim-atk-disp-r').innerText = e.target.value + " ms"; if(nodeR) nodeR.updateLimiterHardware(); } };
-        document.getElementById('lim-rel-r').oninput = (e) => { if(checkLimiterLock('lim-rel-r', 60)) { document.getElementById('lim-rel-disp-r').innerText = e.target.value + " ms"; if(nodeR) nodeR.updateLimiterHardware(); } };
+        document.getElementById('lim-thold-r').addEventListener('input', (e) => { if(checkLimiterLock('lim-thold-r', -3.0)) { document.getElementById('lim-thold-disp-r').innerText = parseFloat(e.target.value).toFixed(1) + " dB"; if(nodeR) nodeR.updateLimiterHardware(); } });
+        document.getElementById('lim-atk-r').addEventListener('input', (e) => { if(checkLimiterLock('lim-atk-r', 3)) { document.getElementById('lim-atk-disp-r').innerText = e.target.value + " ms"; if(nodeR) nodeR.updateLimiterHardware(); } });
+        document.getElementById('lim-rel-r').addEventListener('input', (e) => { if(checkLimiterLock('lim-rel-r', 60)) { document.getElementById('lim-rel-disp-r').innerText = e.target.value + " ms"; if(nodeR) nodeR.updateLimiterHardware(); } });
 
         eqFreqsR.forEach((_, idx) => {
-            const sr = document.getElementById(`eq-r-${idx}`);
-            if(sr) {
-                sr.oninput = function() {
-                    if (!isProUser && idx > 4) { this.value = 0; triggerActivationNotice(); return; }
-                    let v = parseFloat(this.value); document.getElementById(`eq-val-r-${idx}`).innerText = (v > 0 ? `+${v}` : v) + "dB";
-                    if(nodeR) nodeR.updateEQGains();
-                };
-            }
+            document.getElementById(`eq-r-${idx}`).addEventListener('input', function() {
+                if (!isProUser && idx > 4) {
+                    this.value = 0;
+                    triggerActivationNotice();
+                    return;
+                }
+                let v = parseFloat(this.value); document.getElementById(`eq-val-r-${idx}`).innerText = (v > 0 ? `+${v}` : v) + "dB";
+                if(nodeR) nodeR.updateEQGains();
+            });
         });
 
-        document.getElementById('mute-ch-l').onclick = function() { muteState.l.ch = !muteState.l.ch; this.classList.toggle('active', muteState.l.ch); this.innerText = muteState.l.ch ? "MUTED" : "MUTE"; if(nodeL) nodeL.setMute(muteState.l.ch); };
-        document.getElementById('mute-ch-r').onclick = function() { muteState.r.ch = !muteState.r.ch; this.classList.toggle('active', muteState.r.ch); this.innerText = muteState.r.ch ? "MUTED" : "MUTE"; if(nodeR) nodeR.setMute(muteState.r.ch); };
-        document.getElementById('phase-ch-l').onclick = function() { muteState.l.phase = !muteState.l.phase; this.classList.toggle('active', muteState.l.phase); if(nodeL) nodeL.togglePhase(muteState.l.phase); };
-        document.getElementById('phase-ch-r').onclick = function() { muteState.r.phase = !muteState.r.phase; this.classList.toggle('active', muteState.r.phase); if(nodeR) nodeR.togglePhase(muteState.r.phase); };
-        document.getElementById('btn-echo-toggle-r').onclick = function() { muteState.r.echo = !muteState.r.echo; this.classList.toggle('active', muteState.r.echo); this.innerText = muteState.r.echo ? "ECHO ON" : "ECHO BYP"; if(nodeR) nodeR.updateEcho(); };
+        document.getElementById('mute-ch-l').addEventListener('click', function() { muteState.l.ch = !muteState.l.ch; this.classList.toggle('active', muteState.l.ch); this.innerText = muteState.l.ch ? "MUTED" : "MUTE"; if(nodeL) nodeL.setMute(muteState.l.ch); });
+        document.getElementById('mute-ch-r').addEventListener('click', function() { muteState.r.ch = !muteState.r.ch; this.classList.toggle('active', muteState.r.ch); this.innerText = muteState.r.ch ? "MUTED" : "MUTE"; if(nodeR) nodeR.setMute(muteState.r.ch); });
+        document.getElementById('phase-ch-l').addEventListener('click', function() { muteState.l.phase = !muteState.l.phase; this.classList.toggle('active', muteState.l.phase); if(nodeL) nodeL.togglePhase(muteState.l.phase); });
+        document.getElementById('phase-ch-r').addEventListener('click', function() { muteState.r.phase = !muteState.r.phase; this.classList.toggle('active', muteState.r.phase); if(nodeR) nodeR.togglePhase(muteState.r.phase); });
+        document.getElementById('btn-echo-toggle-r').addEventListener('click', function() { muteState.r.echo = !muteState.r.echo; this.classList.toggle('active', muteState.r.echo); this.innerText = muteState.r.echo ? "ECHO ON" : "ECHO BYP"; if(nodeR) nodeR.updateEcho(); });
 
-        document.getElementById('byp-hpf-l').onclick = function() { muteState.l.hpfByp = !muteState.l.hpfByp; this.classList.toggle('active', muteState.l.hpfByp); updateCHL(); };
-        document.getElementById('mute-hpf-l').onclick = function() { muteState.l.hpfMute = !muteState.l.hpfMute; this.classList.toggle('active', muteState.l.hpfMute); updateCHL(); };
-        document.getElementById('byp-lpf-l').onclick = function() { muteState.l.lpfByp = !muteState.l.lpfByp; this.classList.toggle('active', muteState.l.lpfByp); updateCHL(); };
-        document.getElementById('mute-lpf-l').onclick = function() { muteState.l.lpfMute = !muteState.l.lpfMute; this.classList.toggle('active', muteState.l.lpfMute); updateCHL(); };
-        document.getElementById('byp-hpf-r').onclick = function() { muteState.r.hpfByp = !muteState.r.hpfByp; this.classList.toggle('active', muteState.r.hpfByp); updateCHR(); };
-        document.getElementById('mute-hpf-r').onclick = function() { muteState.r.hpfMute = !muteState.r.hpfMute; this.classList.toggle('active', muteState.r.hpfMute); updateCHR(); };
-        document.getElementById('byp-lpf-r').onclick = function() { muteState.r.lpfByp = !muteState.r.lpfByp; this.classList.toggle('active', muteState.r.lpfByp); updateCHR(); };
-        document.getElementById('mute-lpf-r').onclick = function() { muteState.r.lpfMute = !muteState.r.lpfMute; this.classList.toggle('active', muteState.r.lpfMute); updateCHR(); };
+        document.getElementById('byp-hpf-l').addEventListener('click', function() { muteState.l.hpfByp = !muteState.l.hpfByp; this.classList.toggle('active', muteState.l.hpfByp); updateCHL(); });
+        document.getElementById('mute-hpf-l').addEventListener('click', function() { muteState.l.hpfMute = !muteState.l.hpfMute; this.classList.toggle('active', muteState.l.hpfMute); updateCHL(); });
+        document.getElementById('byp-lpf-l').addEventListener('click', function() { muteState.l.lpfByp = !muteState.l.lpfByp; this.classList.toggle('active', muteState.l.lpfByp); updateCHL(); });
+        document.getElementById('mute-lpf-l').addEventListener('click', function() { muteState.l.lpfMute = !muteState.l.lpfMute; this.classList.toggle('active', muteState.l.lpfMute); updateCHL(); });
+        document.getElementById('byp-hpf-r').addEventListener('click', function() { muteState.r.hpfByp = !muteState.r.hpfByp; this.classList.toggle('active', muteState.r.hpfByp); updateCHR(); });
+        document.getElementById('mute-hpf-r').addEventListener('click', function() { muteState.r.hpfMute = !muteState.r.hpfMute; this.classList.toggle('active', muteState.r.hpfMute); updateCHR(); });
+        document.getElementById('byp-lpf-r').addEventListener('click', function() { muteState.r.lpfByp = !muteState.r.lpfByp; this.classList.toggle('active', muteState.r.lpfByp); updateCHR(); });
+        document.getElementById('mute-lpf-r').addEventListener('click', function() { muteState.r.lpfMute = !muteState.r.lpfMute; this.classList.toggle('active', muteState.r.lpfMute); updateCHR(); });
 
-        document.getElementById('lim-mute-l').onclick = function() {
+        document.getElementById('lim-mute-l').addEventListener('click', function() {
             muteState.l.limMute = !muteState.l.limMute; this.classList.toggle('active', muteState.l.limMute);
             this.innerText = muteState.l.limMute ? "LIMIT BYPASS" : "LIMIT MUTE"; if(nodeL) nodeL.updateLimiterHardware();
-        };
-        document.getElementById('lim-mute-r').onclick = function() {
+        });
+        document.getElementById('lim-mute-r').addEventListener('click', function() {
             muteState.r.limMute = !muteState.r.limMute; this.classList.toggle('active', muteState.r.limMute);
             this.innerText = muteState.r.limMute ? "LIMIT BYPASS" : "LIMIT MUTE"; if(nodeR) nodeR.updateLimiterHardware();
-        };
+        });
 
-        document.getElementById('mute-eq-l').onclick = function() { muteState.l.eq = !muteState.l.eq; this.classList.toggle('active', muteState.l.eq); this.innerText = muteState.l.eq ? "EQ BYPASSED" : "BYPASS EQ"; if(nodeL) nodeL.updateEQGains(); };
-        document.getElementById('mute-eq-r').onclick = function() { muteState.r.eq = !muteState.r.eq; this.classList.toggle('active', muteState.r.eq); this.innerText = muteState.r.eq ? "EQ BYPASSED" : "BYPASS EQ"; if(nodeR) nodeR.updateEQGains(); };
+        document.getElementById('mute-eq-l').addEventListener('click', function() { muteState.l.eq = !muteState.l.eq; this.classList.toggle('active', muteState.l.eq); this.innerText = muteState.l.eq ? "EQ BYPASSED" : "BYPASS EQ"; if(nodeL) nodeL.updateEQGains(); });
+        document.getElementById('mute-eq-r').addEventListener('click', function() { muteState.r.eq = !muteState.r.eq; this.classList.toggle('active', muteState.r.eq); this.innerText = muteState.r.eq ? "EQ BYPASSED" : "BYPASS EQ"; if(nodeR) nodeR.updateEQGains(); });
 
-        document.getElementById('reset-eq-l').onclick = function() {
+        document.getElementById('reset-eq-l').addEventListener('click', function() {
             eqFreqsL.forEach((_, idx) => { const slider = document.getElementById(`eq-l-${idx}`); if (slider) { if(!isProUser && idx > 4) return; slider.value = 0; document.getElementById(`eq-val-l-${idx}`).innerText = "0dB"; } });
             if (nodeL) nodeL.updateEQGains();
-        };
-        document.getElementById('reset-eq-r').onclick = function() {
+        });
+        document.getElementById('reset-eq-r').addEventListener('click', function() {
             eqFreqsR.forEach((_, idx) => { const slider = document.getElementById(`eq-r-${idx}`); if (slider) { if(!isProUser && idx > 4) return; slider.value = 0; document.getElementById(`eq-val-r-${idx}`).innerText = "0dB"; } });
             if (nodeR) nodeR.updateEQGains();
-        };
+        });
 
-        document.getElementById('btn-save-preset').onclick = async () => {
+        document.getElementById('btn-save-preset').addEventListener('click', async () => {
             if (!isProUser) { triggerActivationNotice(); return; }
             if (!window.fbDatabase) { alert("Firebase belum siap."); return; }
+            
             const presetName = prompt("Masukkan nama preset untuk disimpan di Firebase:", "Preset_Horeg_1");
             if (!presetName) return;
 
@@ -1021,18 +1046,23 @@
                 const presetRef = window.fbRef(window.fbDatabase, 'presets/' + presetName);
                 await window.fbSet(presetRef, presetData);
                 alert(`🚀 Preset "${presetName}" Berhasil Diunggah ke Firebase Cloud!`);
-            } catch (error) { console.error(error); alert('Gagal mengunggah preset.'); }
-        };
+            } catch (error) {
+                console.error(error);
+                alert('Gagal mengunggah preset.');
+            }
+        });
 
-        document.getElementById('btn-load-preset').onclick = async () => {
+        document.getElementById('btn-load-preset').addEventListener('click', async () => {
             if (!isProUser) { triggerActivationNotice(); return; }
             if (!window.fbDatabase) { alert("Firebase belum siap."); return; }
+            
             const presetName = prompt("Masukkan nama preset Firebase yang ingin dimuat:", "Preset_Horeg_1");
             if (!presetName) return;
 
             try {
                 const presetRef = window.fbRef(window.fbDatabase, 'presets/' + presetName);
                 const snapshot = await window.fbGet(presetRef);
+                
                 if(!snapshot.exists()) { alert(`Preset "${presetName}" tidak ditemukan di Firebase!`); return; }
                 const preset = snapshot.val();
 
@@ -1087,8 +1117,11 @@
 
                 if(audioCtx && nodeL && nodeR) { applyCurrentMode(); syncAllHardwareSlidersToDSP(); }
                 alert('Preset Firebase Sukses Dipasang!');
-            } catch (error) { console.error(error); alert('Gagal mengambil data preset.'); }
-        };
+            } catch (error) {
+                console.error(error);
+                alert('Gagal mengambil data preset.');
+            }
+        });
     }
 
     function processRealtimeVUMeters() {
@@ -1123,7 +1156,6 @@
         renderFrame();
     }
 
-    buildInterface();
     connectUIElements();
 
     document.getElementById('audio-file').addEventListener('change', (e) => {
