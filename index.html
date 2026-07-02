@@ -345,7 +345,6 @@
     window.fbGet = get;
     window.fbSet = set;
 
-    // OTOMATIS CEK LISENSI JIKA TERSIMPAN DI MEMORI HP
     const savedKey = localStorage.getItem("pro_license_key_aji_audio");
     if(savedKey) {
         document.getElementById('input-license-key').value = savedKey;
@@ -353,7 +352,7 @@
             if(window.checkLicenseOnline) {
                 window.checkLicenseOnline(savedKey, true); 
             }
-        }, 1500); // Beri jeda agar sistem Firebase siap sepenuhnya
+        }, 1500);
     }
 </script>
 
@@ -439,7 +438,7 @@
             if (selisih <= 0) {
                 clearInterval(countdownInterval);
                 isProUser = false;
-                localStorage.removeItem("pro_license_key_aji_audio"); // Hapus memori jika sudah habis
+                localStorage.removeItem("pro_license_key_aji_audio");
                 countdownDisp.innerHTML = "❌ MASA AKTIF HABIS! SILAKAN UPGRADE";
                 countdownDisp.style.color = "var(--led-red)";
                 buildInterface();
@@ -499,7 +498,7 @@
                     connectUIElements();
                 } else {
                     isProUser = true;
-                    localStorage.setItem("pro_license_key_aji_audio", key); // Simpan ke memori lokal HP
+                    localStorage.setItem("pro_license_key_aji_audio", key);
                     if(!silentCheck) alert(`✨ LISENSI VALID! PRO UNLOCKED\nSelamat Datang ${data.owner || 'User Pro'}!\nAktif sampai: ${data.expired_date}`);
                     buildInterface(); 
                     connectUIElements(); 
@@ -521,7 +520,7 @@
             if(!silentCheck) alert("⚠️ Gagal memproses data keamanan. Cek jaringan atau lisensi Anda!");
         }
     }
-    window.checkLicenseOnline = checkLicenseOnline; // Ikat ke objek window
+    window.checkLicenseOnline = checkLicenseOnline;
 
     let audioCtx, audioSource, masterGainNode, nodeL, nodeR;
     const audioPlayer = document.getElementById('audio-player');
