@@ -82,7 +82,7 @@
         .vu-scale { display: flex; justify-content: space-between; font-size: 0.65rem; color: #4f5b66; margin-top: 4px; padding: 0 2px; font-weight: bold; }
 
         .control-row { display: grid; grid-template-columns: 110px 1fr 70px; align-items: center; margin-bottom: 10px; gap: 10px; position: relative; }
-        .control-row.with-mute { grid-template-columns: 110px 1fr 50px 50px 70px; }
+        .control-row.with-mute { grid-template-columns: 110px 1fr 50px 50px 85px; }
         label { font-size: 0.8rem; color: #8b9bb4; text-transform: uppercase; font-weight: bold; }
         select { background: #070a0e; border: 1px solid var(--border-color); color: #fff; padding: 5px; border-radius: 3px; font-size: 0.75rem; font-weight: bold; }
         
@@ -92,59 +92,21 @@
         .echo-block input[type="range"]::-webkit-slider-thumb { background: var(--accent-green) !important; box-shadow: 0 0 6px var(--accent-green) !important; }
         .val-disp { text-align: right; font-size: 0.85rem; font-weight: bold; color: #fff; }
 
+        .freq-input-box { width: 100%; background: #040608; border: 1px solid #3a4756; color: #fff; text-align: right; padding: 3px 5px; font-size: 0.8rem; font-weight: bold; border-radius: 3px; }
+        .freq-input-box:focus { border-color: var(--accent-green); outline: none; box-shadow: 0 0 5px rgba(57, 255, 20, 0.4); }
+        .freq-input-box::-webkit-inner-spin-button, .freq-input-box::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        .freq-input-box { -moz-appearance: textfield; }
+
         .eq-container { background: #070a0e; padding: 12px; border-radius: 4px; border: 1px solid var(--border-color); margin-top: 15px; }
         .eq-header-block { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; }
         .eq-title { font-size: 0.75rem; color: #8b9bb4; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
         
-        .eq-wrapper { 
-            display: flex; 
-            gap: 5px; 
-            position: relative; 
-            height: 200px; 
-            padding-top: 5px; 
-            overflow-x: auto; 
-            scrollbar-width: thin;
-            scrollbar-color: var(--accent-green) #070a0e;
-        }
-        .eq-wrapper::-webkit-scrollbar {
-            height: 5px;
-        }
-        .eq-wrapper::-webkit-scrollbar-thumb {
-            background: var(--accent-green);
-            border-radius: 3px;
-        }
-
-        .eq-sliders { 
-            display: flex; 
-            justify-content: space-between; 
-            height: 150px; 
-            flex: 1; 
-            gap: 4px; 
-            min-width: 550px; 
-        }
-
-        .eq-ch { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            flex: 1; 
-            min-width: 32px; 
-            position: relative; 
-            height: 100%; 
-            transition: all 0.3s ease; 
-        }
-
-        .eq-ch input[type="range"] { 
-            -webkit-appearance: slider-vertical; 
-            writing-mode: vertical-lr; 
-            direction: rtl;
-            width: 12px; 
-            height: 100%; 
-            background: #161b22; 
-            cursor: ns-resize; 
-            margin: 4px 0; 
-        }
-        
+        .eq-wrapper { display: flex; gap: 5px; position: relative; height: 200px; padding-top: 5px; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--accent-green) #070a0e; }
+        .eq-wrapper::-webkit-scrollbar { height: 5px; }
+        .eq-wrapper::-webkit-scrollbar-thumb { background: var(--accent-green); border-radius: 3px; }
+        .eq-sliders { display: flex; justify-content: space-between; height: 150px; flex: 1; gap: 4px; min-width: 550px; }
+        .eq-ch { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 32px; position: relative; height: 100%; transition: all 0.3s ease; }
+        .eq-ch input[type="range"] { -webkit-appearance: slider-vertical; writing-mode: vertical-lr; direction: rtl; width: 12px; height: 100%; background: #161b22; cursor: ns-resize; margin: 4px 0; }
         .eq-ch .eq-freq-lbl { font-size: 0.55rem; color: #8b9bb4; transform: rotate(-40deg); display: inline-block; white-space: nowrap; font-weight: bold; margin-top: 12px; }
         .eq-ch .eq-rt-val { font-size: 0.55rem; color: var(--accent-green); font-weight: bold; display: block; height: 12px; text-align: center; line-height: 12px; }
 
@@ -160,34 +122,11 @@
         .license-box { background: #070a0e; border: 1px solid var(--border-color); border-radius: 4px; padding: 10px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
         .license-inputs { display: flex; gap: 8px; align-items: center; }
         .license-box input { flex: 1; background: #111418; border: 1px solid #323942; color: #fff; padding: 6px; font-size: 0.75rem; border-radius: 3px; font-weight: bold; }
-        
         .license-countdown { font-size: 0.7rem; color: #8b9bb4; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; text-align: left; padding-left: 2px; min-height: 12px; }
 
-        .locked-feature {
-            filter: blur(1.5px) brightness(0.4) !important;
-            pointer-events: none !important; 
-            user-select: none !important;
-        }
-        .lock-overlay-container {
-            position: relative;
-        }
-        .lock-badge {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: rgba(225, 30, 30, 0.9);
-            color: #fff;
-            padding: 3px 8px;
-            font-size: 0.6rem;
-            font-weight: bold;
-            border-radius: 3px;
-            z-index: 10;
-            letter-spacing: 1px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.6);
-            pointer-events: auto;
-            cursor: pointer;
-            white-space: nowrap;
-        }
+        .locked-feature { filter: blur(1.5px) brightness(0.4) !important; pointer-events: none !important; user-select: none !important; }
+        .lock-overlay-container { position: relative; }
+        .lock-badge { position: absolute; top: 12px; right: 12px; background: rgba(225, 30, 30, 0.9); color: #fff; padding: 3px 8px; font-size: 0.6rem; font-weight: bold; border-radius: 3px; z-index: 10; letter-spacing: 1px; box-shadow: 0 2px 6px rgba(0,0,0,0.6); pointer-events: auto; cursor: pointer; white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -273,8 +212,22 @@
                 <div class="vu-scale"><span>-40</span><span>-24</span><span>-12</span><span>-6</span><span>-3</span><span>0</span><span>+3</span><span>CLIP</span></div>
             </div>
             <div class="control-row"><label>Fader Gain</label><input type="range" id="gain-l" min="-40" max="12" step="0.5" value="0"><span class="val-disp" id="gain-disp-l">0.0 dB</span></div>
-            <div class="control-row class-crossover-row panel-block filter-highlight with-mute"><label style="color: var(--accent-blue); font-weight: bold;">HPF FREQ</label><input type="range" id="hpf-l" min="20" max="150" step="1" value="32"><button class="btn-byp" id="byp-hpf-l">BYP</button><button class="btn-mute" id="mute-hpf-l">MUTE</button><span class="val-disp" id="hpf-disp-l" style="color: var(--accent-blue);">32 Hz</span></div>
-            <div class="control-row class-crossover-row panel-block filter-highlight with-mute"><label style="color: #ffb3d9; font-weight: bold;">LPF FREQ</label><input type="range" id="lpf-l" min="50" max="400" step="1" value="110"><button class="btn-byp" id="byp-lpf-l">BYP</button><button class="btn-mute" id="mute-lpf-l">MUTE</button><span class="val-disp" id="lpf-disp-l" style="color: #ffb3d9;">110 Hz</span></div>
+            
+            <div class="control-row class-crossover-row panel-block filter-highlight with-mute">
+                <label style="color: var(--accent-blue); font-weight: bold;">HPF FREQ</label>
+                <input type="range" id="hpf-l" min="20" max="150" step="1" value="32">
+                <button class="btn-byp" id="byp-hpf-l">BYP</button>
+                <button class="btn-mute" id="mute-hpf-l">MUTE</button>
+                <div><input type="number" id="hpf-input-l" class="freq-input-box" min="20" max="150" value="32"></div>
+            </div>
+            <div class="control-row class-crossover-row panel-block filter-highlight with-mute">
+                <label style="color: #ffb3d9; font-weight: bold;">LPF FREQ</label>
+                <input type="range" id="lpf-l" min="50" max="400" step="1" value="110">
+                <button class="btn-byp" id="byp-lpf-l">BYP</button>
+                <button class="btn-mute" id="mute-lpf-l">MUTE</button>
+                <div><input type="number" id="lpf-input-l" class="freq-input-box" min="50" max="400" value="110"></div>
+            </div>
+            
             <div class="control-row"><label>X-Over Type</label><select id="slope-l"><option value="lr12">Linkwitz-Riley 12dB</option><option value="lr24" selected>Linkwitz-Riley 24dB (PRO LOCK)</option><option value="lr48">Linkwitz-Riley 48dB (PRO LOCK)</option><option value="bw12">Butterworth 12dB</option><option value="bw24">Butterworth 24dB (PRO LOCK)</option><option value="bw48">Butterworth 48dB (PRO LOCK)</option></select><span></span></div>
             
             <div class="lock-overlay-container">
@@ -334,8 +287,21 @@
                 <span class="val-disp" id="echo-wet-disp" style="color: #a3ff94; font-size:0.75rem;">50 %</span>
             </div>
 
-            <div class="control-row class-crossover-row panel-block filter-highlight with-mute"><label style="color: var(--accent-blue); font-weight: bold;">HPF FREQ</label><input type="range" id="hpf-r" min="80" max="8000" step="5" value="120"><button class="btn-byp" id="byp-hpf-r">BYP</button><button class="btn-mute" id="mute-hpf-r">MUTE</button><span class="val-disp" id="hpf-disp-r" style="color: var(--accent-blue);">120 Hz</span></div>
-            <div class="control-row class-crossover-row panel-block filter-highlight with-mute"><label style="color: #ffb3d9; font-weight: bold;">LPF FREQ</label><input type="range" id="lpf-r" min="3000" max="20000" step="100" value="16500"><button class="btn-byp" id="byp-lpf-r">BYP</button><button class="btn-mute" id="mute-lpf-r">MUTE</button><span class="val-disp" id="lpf-disp-r" style="color: #ffb3d9;">16.5 kHz</span></div>
+            <div class="control-row class-crossover-row panel-block filter-highlight with-mute">
+                <label style="color: var(--accent-blue); font-weight: bold;">HPF FREQ</label>
+                <input type="range" id="hpf-r" min="80" max="8000" step="1" value="120">
+                <button class="btn-byp" id="byp-hpf-r">BYP</button>
+                <button class="btn-mute" id="mute-hpf-r">MUTE</button>
+                <div><input type="number" id="hpf-input-r" class="freq-input-box" min="80" max="8000" value="120"></div>
+            </div>
+            <div class="control-row class-crossover-row panel-block filter-highlight with-mute">
+                <label style="color: #ffb3d9; font-weight: bold;">LPF FREQ</label>
+                <input type="range" id="lpf-r" min="3000" max="20000" step="1" value="16500">
+                <button class="btn-byp" id="byp-lpf-r">BYP</button>
+                <button class="btn-mute" id="mute-lpf-r">MUTE</button>
+                <div><input type="number" id="lpf-input-r" class="freq-input-box" min="3000" max="20000" value="16500"></div>
+            </div>
+            
             <div class="control-row"><label>X-Over Type</label><select id="slope-r"><option value="lr12">Linkwitz-Riley 12dB</option><option value="lr24" selected>Linkwitz-Riley 24dB (PRO LOCK)</option><option value="lr48">Linkwitz-Riley 48dB (PRO LOCK)</option><option value="bw12">Butterworth 12dB</option><option value="bw24">Butterworth 24dB (PRO LOCK)</option><option value="bw48">Butterworth 48dB (PRO LOCK)</option></select><span></span></div>
             
             <div class="lock-overlay-container">
@@ -347,7 +313,7 @@
                     </div>
                     <div class="control-row"><label>Threshold</label><input type="range" id="lim-thold-r" min="-20" max="0" step="0.5" value="-3.0"><span class="val-disp" id="lim-thold-disp-r">-3.0 dB</span></div>
                     <div class="control-row"><label>Attack</label><input type="range" id="lim-atk-r" min="1" max="100" step="1" value="3"><span class="val-disp" id="lim-atk-disp-r">3 ms</span></div>
-                    <div class="control-row"><label>Release</label><input type="range" id="lim-rel-r" min="50" max="1000" step="10" value="60"><span class="val-disp" id="lim-rel-disp-r">60 ms</span></div>
+                    <div class="control-row"><label>Release</label><input type="range" id="lim-rel-r" min="50" max="1000" step="10" value="60"><span class="val-disp" id="lim-thold-disp-r">60 ms</span></div>
                 </div>
             </div>
 
@@ -367,7 +333,6 @@
     </div>
 </div>
 
-<!-- INTEGRASI FIREBASE OFFICIAL MODULAR SDK -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
     import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
@@ -396,6 +361,11 @@
         document.getElementById('input-license-key').value = localSavedKey;
         setTimeout(() => { checkLicenseOnline(localSavedKey); }, 1500);
     }
+
+    document.getElementById('btn-activate-license').addEventListener('click', () => {
+        const k = document.getElementById('input-license-key').value.trim();
+        if(k) { checkLicenseOnline(k); } else { alert("Masukkan key terlebih dahulu!"); }
+    });
 </script>
 
 <script>
@@ -440,7 +410,6 @@
         alert("🔒 PRO VERSION EXCLUSIVE\n\nFitur ini terkunci. Hubungi AD AUDIO PRODUCTION / AJI LUMAJANG untuk membeli lisensi penuh Pro Engine.");
     }
 
-    // UPDATE VISUAL ANTI GUNTING ELEMEN
     function applyVisualLocks() {
         if (!isProUser) {
             document.getElementById('panel-generator-group').classList.add('locked-feature');
@@ -448,7 +417,6 @@
             document.getElementById('panel-limiter-r').classList.add('locked-feature');
             document.querySelectorAll('.lock-badge').forEach(b => b.style.display = 'block');
             
-            // Pasang lock visual ke baris slider EQ premium secara kaku
             ['l', 'r'].forEach(ch => {
                 for(let i = 5; i < 15; i++) {
                     const sliderNode = document.getElementById(`eq-${ch}-${i}`);
@@ -465,7 +433,6 @@
             document.getElementById('panel-limiter-r').classList.remove('locked-feature');
             document.querySelectorAll('.lock-badge').forEach(b => b.style.display = 'none');
             
-            // Lepaskan gembok visual tanpa membongkar DOM elemen
             ['l', 'r'].forEach(ch => {
                 for(let i = 5; i < 15; i++) {
                     const sliderNode = document.getElementById(`eq-${ch}-${i}`);
@@ -479,7 +446,6 @@
         }
     }
 
-    // HANYA UNTUK MEMBANGUN STRUKTUR SEKALI DI AWAL LOADING
     function buildInterfaceAwal() {
         ['l', 'r'].forEach(ch => {
             const vuBar = document.getElementById(`vu-${ch}`);
@@ -512,7 +478,6 @@
 
     function mulaiHitungMundur(expiredDateStr) {
         if (countdownInterval) clearInterval(countdownInterval);
-        
         const countdownDisp = document.getElementById('license-countdown-disp');
         const targetDate = new Date(expiredDateStr).getTime();
 
@@ -541,7 +506,6 @@
 
     async function checkLicenseOnline(key) {
         if(!key) return;
-        
         if(!window.fbDatabase) {
             alert("⚠️ Sistem Firebase belum siap, silakan coba lagi dalam beberapa detik.");
             return;
@@ -640,36 +604,6 @@
             this.lpf1 = this.ctx.createBiquadFilter(); this.lpf1.type = 'lowpass';
             this.lpf2 = this.ctx.createBiquadFilter(); this.lpf2.type = 'lowpass';
 
-            this.modeFilter.connect(this.hpf1);
-            this.hpf1.connect(this.hpf2);
-            this.hpf2.connect(this.lpf1);
-            this.lpf1.connect(this.lpf2);
-
-            this.eqFilters = [];
-            const freqs = type === 'L' ? eqFreqsL : eqFreqsR;
-            let lastNode = this.lpf2; 
-
-            freqs.forEach((f) => {
-                let actualFreq = (typeof f === 'string' && f.includes('k')) ? parseFloat(f) * 1000 : parseFloat(f);
-                const eq = this.ctx.createBiquadFilter();
-                eq.type = 'peaking';
-                eq.frequency.value = actualFreq;
-                eq.Q.value = 1.8; 
-                eq.gain.value = 0;
-                this.eqFilters.push(eq);
-                lastNode.connect(eq);
-                lastNode = eq;
-            });
-
-            this.limiter = this.ctx.createDynamicsCompressor();
-            this.limiter.knee.value = 0; 
-
-            this.analyser = this.ctx.createAnalyser();
-            this.analyser.fftSize = 64;
-
-            lastNode.connect(this.analyser);
-            this.analyser.connect(this.limiter);
-
             this.gainNode.connect(this.phaseNode);
 
             if (this.type === 'R') {
@@ -699,6 +633,36 @@
             } else {
                 this.phaseNode.connect(this.modeFilter);
             }
+
+            this.modeFilter.connect(this.hpf1);
+            this.hpf1.connect(this.hpf2);
+            this.hpf2.connect(this.lpf1);
+            this.lpf1.connect(this.lpf2);
+
+            this.eqFilters = [];
+            const freqs = type === 'L' ? eqFreqsL : eqFreqsR;
+            let lastNode = this.lpf2; 
+
+            freqs.forEach((f) => {
+                let actualFreq = (typeof f === 'string' && f.includes('k')) ? parseFloat(f) * 1000 : parseFloat(f);
+                const eq = this.ctx.createBiquadFilter();
+                eq.type = 'peaking';
+                eq.frequency.value = actualFreq;
+                eq.Q.value = 1.8; 
+                eq.gain.value = 0;
+                this.eqFilters.push(eq);
+                lastNode.connect(eq);
+                lastNode = eq;
+            });
+
+            this.limiter = this.ctx.createDynamicsCompressor();
+            this.limiter.knee.value = 0; 
+
+            this.analyser = this.ctx.createAnalyser();
+            this.analyser.fftSize = 64;
+
+            lastNode.connect(this.analyser);
+            this.analyser.connect(this.limiter);
         }
 
         applyDspMode(mode) {
@@ -774,7 +738,6 @@
         updateLimiterHardware() {
             const chKey = this.type.toLowerCase();
             let t = this.ctx.currentTime;
-
             if (muteState[chKey].limMute) {
                 this.limiter.threshold.setValueAtTime(0, t);
                 this.limiter.ratio.setValueAtTime(1, t);
@@ -782,9 +745,7 @@
                 let tholdVal = parseFloat(document.getElementById(`lim-thold-${chKey}`).value);
                 let atkVal = parseFloat(document.getElementById(`lim-atk-${chKey}`).value) / 1000; 
                 let relVal = parseFloat(document.getElementById(`lim-rel-${chKey}`).value) / 1000; 
-
                 if (relVal > 1.0) relVal = 1.0;
-
                 this.limiter.threshold.setValueAtTime(tholdVal, t);
                 this.limiter.attack.setValueAtTime(atkVal, t);
                 this.limiter.release.setValueAtTime(relVal, t);
@@ -963,8 +924,33 @@
             });
         });
 
+        const setupBiDirectionalFilter = (sliderId, inputId, updateFunc) => {
+            const slider = document.getElementById(sliderId);
+            const input = document.getElementById(inputId);
+
+            slider.addEventListener('input', (e) => {
+                input.value = e.target.value;
+                updateFunc();
+            });
+
+            input.addEventListener('change', (e) => {
+                let val = parseInt(e.target.value);
+                let min = parseInt(slider.min);
+                let max = parseInt(slider.max);
+
+                if (isNaN(val) || val < min) val = min;
+                if (val > max) val = max;
+
+                e.target.value = val;
+                slider.value = val;
+                updateFunc();
+            });
+        };
+
         const updateCHL = () => {
-            let hpf = parseInt(document.getElementById('hpf-l').value); let lpf = parseInt(document.getElementById('lpf-l').value); let slope = document.getElementById('slope-l').value;
+            let hpf = parseInt(document.getElementById('hpf-l').value); 
+            let lpf = parseInt(document.getElementById('lpf-l').value); 
+            let slope = document.getElementById('slope-l').value;
             if (!isProUser && slope !== "lr12" && slope !== "bw12") {
                 document.getElementById('slope-l').value = "lr12";
                 triggerActivationNotice();
@@ -972,12 +958,14 @@
             }
             if(nodeL) nodeL.updateCrossover(hpf, lpf, slope);
         };
+
+        setupBiDirectionalFilter('hpf-l', 'hpf-input-l', updateCHL);
+        setupBiDirectionalFilter('lpf-l', 'lpf-input-l', updateCHL);
+
         document.getElementById('gain-l').addEventListener('input', (e) => {
             let v = parseFloat(e.target.value); document.getElementById('gain-disp-l').innerText = v.toFixed(1) + " dB";
             if(nodeL) { nodeL.currentGainVal = calculateGain(v); if (!muteState.l.ch) nodeL.gainNode.gain.setValueAtTime(nodeL.currentGainVal, audioCtx.currentTime); }
         });
-        document.getElementById('hpf-l').addEventListener('input', (e) => { document.getElementById('hpf-disp-l').innerText = e.target.value + " Hz"; updateCHL(); });
-        document.getElementById('lpf-l').addEventListener('input', (e) => { document.getElementById('lpf-disp-l').innerText = e.target.value + " Hz"; updateCHL(); });
         document.getElementById('slope-l').addEventListener('change', updateCHL);
 
         const checkLimiterLock = (elId, defaultVal) => {
@@ -993,23 +981,15 @@
         document.getElementById('lim-atk-l').addEventListener('input', (e) => { if(checkLimiterLock('lim-atk-l', 30)) { document.getElementById('lim-atk-disp-l').innerText = e.target.value + " ms"; if(nodeL) nodeL.updateLimiterHardware(); } });
         document.getElementById('lim-rel-l').addEventListener('input', (e) => { if(checkLimiterLock('lim-rel-l', 500)) { document.getElementById('lim-rel-disp-l').innerText = e.target.value + " ms"; if(nodeL) nodeL.updateLimiterHardware(); } });
 
-        // EVENT DELEGATION INDUK PERMANEN UNTUK MATRIX EQ
         ['l', 'r'].forEach(ch => {
             const container = document.getElementById(`eq-sliders-${ch}`);
             container.addEventListener('input', function(e) {
                 if (e.target && e.target.type === 'range') {
                     const idx = parseInt(e.target.getAttribute('data-idx'));
                     const chKey = e.target.getAttribute('data-ch');
-                    
-                    if (!isProUser && idx > 4) {
-                        e.target.value = 0;
-                        triggerActivationNotice();
-                        return;
-                    }
-                    
+                    if (!isProUser && idx > 4) { e.target.value = 0; triggerActivationNotice(); return; }
                     let v = parseFloat(e.target.value);
                     document.getElementById(`eq-val-${chKey}-${idx}`).innerText = (v > 0 ? `+${v}` : v) + "dB";
-                    
                     if (chKey === 'l' && nodeL) nodeL.updateEQGains();
                     if (chKey === 'r' && nodeR) nodeR.updateEQGains();
                 }
@@ -1017,7 +997,9 @@
         });
 
         const updateCHR = () => {
-            let hpf = parseInt(document.getElementById('hpf-r').value); let lpf = parseInt(document.getElementById('lpf-r').value); let slope = document.getElementById('slope-r').value;
+            let hpf = parseInt(document.getElementById('hpf-r').value); 
+            let lpf = parseInt(document.getElementById('lpf-r').value); 
+            let slope = document.getElementById('slope-r').value;
             if (!isProUser && slope !== "lr12" && slope !== "bw12") {
                 document.getElementById('slope-r').value = "lr12";
                 triggerActivationNotice();
@@ -1025,6 +1007,10 @@
             }
             if(nodeR) nodeR.updateCrossover(hpf, lpf, slope);
         };
+
+        setupBiDirectionalFilter('hpf-r', 'hpf-input-r', updateCHR);
+        setupBiDirectionalFilter('lpf-r', 'lpf-input-r', updateCHR);
+
         document.getElementById('gain-r').addEventListener('input', (e) => {
             let v = parseFloat(e.target.value); document.getElementById('gain-disp-r').innerText = v.toFixed(1) + " dB";
             if(nodeR) { nodeR.currentGainVal = calculateGain(v); if (!muteState.r.ch) nodeR.gainNode.gain.setValueAtTime(nodeR.currentGainVal, audioCtx.currentTime); }
@@ -1035,17 +1021,11 @@
         });
         document.getElementById('echo-feedback-r').addEventListener('input', (e) => { document.getElementById('echo-disp-r').innerText = e.target.value + " %"; if(nodeR) nodeR.updateEcho(); });
         document.getElementById('echo-wet-r').addEventListener('input', (e) => { document.getElementById('echo-wet-disp').innerText = e.target.value + " %"; if(nodeR) nodeR.updateEcho(); });
-        document.getElementById('hpf-r').addEventListener('input', (e) => { 
-            let v = parseInt(e.target.value); document.getElementById('hpf-disp-r').innerText = v >= 1000 ? (v/1000).toFixed(2) + " kHz" : v + " Hz"; updateCHR(); 
-        });
-        document.getElementById('lpf-r').addEventListener('input', (e) => {
-            let v = parseInt(e.target.value); document.getElementById('lpf-disp-r').innerText = v >= 1000 ? (v/1000).toFixed(1) + " kHz" : v + " Hz"; updateCHR();
-        });
         document.getElementById('slope-r').addEventListener('change', updateCHR);
 
-        document.getElementById('lim-thold-r').addEventListener('input', (e) => { if(checkLimiterLock('lim-thold-r', -3.0)) { document.getElementById('lim-thold-disp-r').innerText = parseFloat(e.target.value).toFixed(1) + " dB"; if(nodeR) nodeR.updateLimiterHardware(); } });
-        document.getElementById('lim-atk-r').addEventListener('input', (e) => { if(checkLimiterLock('lim-atk-r', 3)) { document.getElementById('lim-atk-disp-r').innerText = e.target.value + " ms"; if(nodeR) nodeR.updateLimiterHardware(); } });
-        document.getElementById('lim-rel-r').addEventListener('input', (e) => { if(checkLimiterLock('lim-rel-r', 60)) { document.getElementById('lim-rel-disp-r').innerText = e.target.value + " ms"; if(nodeR) nodeR.updateLimiterHardware(); } });
+        document.getElementById('lim-thold-r').addEventListener('input', (e) => { if(checkLimiterLock('lim-thold-r', -3.0)) { if(nodeR) nodeR.updateLimiterHardware(); } });
+        document.getElementById('lim-atk-r').addEventListener('input', (e) => { if(checkLimiterLock('lim-atk-r', 3)) { if(nodeR) nodeR.updateLimiterHardware(); } });
+        document.getElementById('lim-rel-r').addEventListener('input', (e) => { if(checkLimiterLock('lim-rel-r', 60)) { if(nodeR) nodeR.updateLimiterHardware(); } });
 
         document.getElementById('mute-ch-l').addEventListener('click', function() { muteState.l.ch = !muteState.l.ch; this.classList.toggle('active', muteState.l.ch); this.innerText = muteState.l.ch ? "MUTED" : "MUTE"; if(nodeL) nodeL.setMute(muteState.l.ch); });
         document.getElementById('mute-ch-r').addEventListener('click', function() { muteState.r.ch = !muteState.r.ch; this.classList.toggle('active', muteState.r.ch); this.innerText = muteState.r.ch ? "MUTED" : "MUTE"; if(nodeR) nodeR.setMute(muteState.r.ch); });
@@ -1062,14 +1042,8 @@
         document.getElementById('byp-lpf-r').addEventListener('click', function() { muteState.r.lpfByp = !muteState.r.lpfByp; this.classList.toggle('active', muteState.r.lpfByp); updateCHR(); });
         document.getElementById('mute-lpf-r').addEventListener('click', function() { muteState.r.lpfMute = !muteState.r.lpfMute; this.classList.toggle('active', muteState.r.lpfMute); updateCHR(); });
 
-        document.getElementById('lim-mute-l').addEventListener('click', function() {
-            muteState.l.limMute = !muteState.l.limMute; this.classList.toggle('active', muteState.l.limMute);
-            this.innerText = muteState.l.limMute ? "LIMIT BYPASS" : "LIMIT MUTE"; if(nodeL) nodeL.updateLimiterHardware();
-        });
-        document.getElementById('lim-mute-r').addEventListener('click', function() {
-            muteState.r.limMute = !muteState.r.limMute; this.classList.toggle('active', muteState.r.limMute);
-            this.innerText = muteState.r.limMute ? "LIMIT BYPASS" : "LIMIT MUTE"; if(nodeR) nodeR.updateLimiterHardware();
-        });
+        document.getElementById('lim-mute-l').addEventListener('click', function() { muteState.l.limMute = !muteState.l.limMute; this.classList.toggle('active', muteState.l.limMute); this.innerText = muteState.l.limMute ? "LIMIT BYPASS" : "LIMIT MUTE"; if(nodeL) nodeL.updateLimiterHardware(); });
+        document.getElementById('lim-mute-r').addEventListener('click', function() { muteState.r.limMute = !muteState.r.limMute; this.classList.toggle('active', muteState.r.limMute); this.innerText = muteState.r.limMute ? "LIMIT BYPASS" : "LIMIT MUTE"; if(nodeR) nodeR.updateLimiterHardware(); });
 
         document.getElementById('mute-eq-l').addEventListener('click', function() { muteState.l.eq = !muteState.l.eq; this.classList.toggle('active', muteState.l.eq); this.innerText = muteState.l.eq ? "EQ BYPASSED" : "BYPASS EQ"; if(nodeL) nodeL.updateEQGains(); });
         document.getElementById('mute-eq-r').addEventListener('click', function() { muteState.r.eq = !muteState.r.eq; this.classList.toggle('active', muteState.r.eq); this.innerText = muteState.r.eq ? "EQ BYPASSED" : "BYPASS EQ"; if(nodeR) nodeR.updateEQGains(); });
@@ -1086,7 +1060,6 @@
         document.getElementById('btn-save-preset').addEventListener('click', async () => {
             if (!isProUser) { triggerActivationNotice(); return; }
             if (!window.fbDatabase) { alert("Firebase belum siap."); return; }
-            
             const presetName = prompt("Masukkan nama preset untuk disimpan di Firebase:", "Preset_Horeg_1");
             if (!presetName) return;
 
@@ -1118,23 +1091,18 @@
                 const presetRef = window.fbRef(window.fbDatabase, 'presets/' + presetName);
                 await window.fbSet(presetRef, presetData);
                 alert(`🚀 Preset "${presetName}" Berhasil Diunggah ke Firebase Cloud!`);
-            } catch (error) {
-                console.error(error);
-                alert('Gagal mengunggah preset.');
-            }
+            } catch (error) { console.error(error); alert('Gagal mengunggah preset.'); }
         });
 
         document.getElementById('btn-load-preset').addEventListener('click', async () => {
             if (!isProUser) { triggerActivationNotice(); return; }
             if (!window.fbDatabase) { alert("Firebase belum siap."); return; }
-            
             const presetName = prompt("Masukkan nama preset Firebase yang ingin dimuat:", "Preset_Horeg_1");
             if (!presetName) return;
 
             try {
                 const presetRef = window.fbRef(window.fbDatabase, 'presets/' + presetName);
                 const snapshot = await window.fbGet(presetRef);
-                
                 if(!snapshot.exists()) { alert(`Preset "${presetName}" tidak ditemukan di Firebase!`); return; }
                 const preset = snapshot.val();
 
@@ -1164,23 +1132,20 @@
                 document.getElementById('master-gain-disp').innerText = parseFloat(preset.masterGain).toFixed(1) + " dB";
                 document.getElementById('gain-disp-l').innerText = parseFloat(preset.gainL).toFixed(1) + " dB";
                 document.getElementById('gain-disp-r').innerText = parseFloat(preset.gainR).toFixed(1) + " dB";
-                document.getElementById('hpf-disp-l').innerText = preset.hpfL + " Hz";
-                document.getElementById('lpf-disp-l').innerText = preset.lpfL + " Hz";
                 
-                document.getElementById('lim-thold-disp-l').innerText = parseFloat(preset.limTholdL).toFixed(1) + " dB";
-                document.getElementById('lim-atk-disp-l').innerText = preset.limAtkL + " ms";
-                document.getElementById('lim-rel-disp-l').innerText = preset.limRelL + " ms";
+                document.getElementById('hpf-input-l').value = preset.hpfL;
+                document.getElementById('lpf-input-l').value = preset.lpfL;
+                document.getElementById('hpf-input-r').value = preset.hpfR;
+                document.getElementById('lpf-input-r').value = preset.lpfR;
+
+                document.getElementById('hpf-l').value = preset.hpfL;
+                document.getElementById('lpf-l').value = preset.lpfL;
+                document.getElementById('hpf-r').value = preset.hpfR;
+                document.getElementById('lpf-r').value = preset.lpfR;
 
                 document.getElementById('delay-disp-r').innerText = parseFloat(preset.delayR).toFixed(1) + " ms";
                 document.getElementById('echo-disp-r').innerText = preset.echoFeedbackR + " %";
                 document.getElementById('echo-wet-disp').innerText = preset.echoWetR + " %";
-                
-                document.getElementById('lim-thold-disp-r').innerText = parseFloat(preset.limTholdR).toFixed(1) + " dB";
-                document.getElementById('lim-atk-disp-r').innerText = preset.limAtkR + " ms";
-                document.getElementById('lim-rel-disp-r').innerText = preset.limRelR + " ms";
-                
-                let hpfRNum = parseInt(preset.hpfR); document.getElementById('hpf-disp-r').innerText = hpfRNum >= 1000 ? (hpfRNum/1000).toFixed(2) + " kHz" : hpfRNum + " Hz";
-                let lpfRNum = parseInt(preset.lpfR); document.getElementById('lpf-disp-r').innerText = lpfRNum >= 1000 ? (lpfRNum/1000).toFixed(1) + " kHz" : lpfRNum + " Hz";
 
                 document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
                 const activeBtn = document.querySelector(`.btn-mode[data-mode="${preset.currentMode}"]`);
@@ -1189,10 +1154,7 @@
 
                 if(audioCtx && nodeL && nodeR) { applyCurrentMode(); syncAllHardwareSlidersToDSP(); }
                 alert('Preset Firebase Sukses Dipasang!');
-            } catch (error) {
-                console.error(error);
-                alert('Gagal mengambil data preset.');
-            }
+            } catch (error) { console.error(error); alert('Gagal mengambil data preset.'); }
         });
     }
 
@@ -1214,9 +1176,7 @@
                 txtObj.innerText = db.toFixed(1) + " dB"; 
                 if(!isMuted && db >= (currentThold - 0.3)) {
                     txtObj.innerText = "LIMIT " + db.toFixed(1) + " dB"; txtObj.classList.add('clip');
-                } else {
-                    txtObj.classList.remove('clip');
-                }
+                } else { txtObj.classList.remove('clip'); }
             }
             
             let totalLeds = 30, activeLeds = 0; if (db > -45) { let normalized = (db + 45) / 48; activeLeds = Math.floor(normalized * totalLeds); }
@@ -1228,7 +1188,6 @@
         renderFrame();
     }
 
-    // INISIALISASI STRUKTUR UTAMA SEJAK AWAL LOADING
     buildInterfaceAwal();
     connectUIElements();
 
