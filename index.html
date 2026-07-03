@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AJI AUDIO LUMAJANG - DLMS HOREG PRO v5.6.3 (Firebase Secured)</title>
+    <title>AJI AUDIO LUMAJANG - DLMS HOREG PRO v5.6.4 (Local Presets Secured)</title>
     <style>
         :root {
             --bg-main: #070a0e;
@@ -115,9 +115,14 @@
         .gradient-highlight { border: 2px solid #2e3b2f !important; background: #0c120e !important; }
         .limiter-horeg-panel { border: 1px solid rgba(255, 153, 0, 0.3) !important; background: #16120c !important; margin-top: 12px; padding: 12px; border-radius: 4px; }
 
-        .preset-container { display: flex; gap: 5px; margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 8px; }
-        .btn-preset-save { background: #1b4d22; border: 1px solid var(--accent-green); color: #fff; font-size: 0.7rem; padding: 4px 8px; width: 50%; }
-        .btn-preset-load { background: #1f6feb; border: 1px solid var(--accent-blue); color: #fff; font-size: 0.7rem; padding: 4px 8px; width: 50%; }
+        /* MODIFIKASI PANEL PRESET LOKAL */
+        .preset-container { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 12px; }
+        .preset-actions { display: flex; gap: 5px; }
+        .btn-preset-save { background: #1b4d22; border: 1px solid var(--accent-green); color: #fff; font-size: 0.75rem; padding: 6px 10px; flex: 1; font-weight: bold; }
+        .btn-preset-delete { background: #4d1b1b; border: 1px solid var(--led-red); color: #fff; font-size: 0.75rem; padding: 6px 10px; font-weight: bold; }
+        .preset-select-wrapper { display: flex; flex-direction: column; gap: 4px; }
+        .preset-select-wrapper label { font-size: 0.65rem; color: var(--accent-blue); }
+        .select-preset-local { width: 100%; background: #070a0e; border: 1px solid var(--accent-blue); color: #fff; padding: 6px; font-size: 0.75rem; border-radius: 4px; font-weight: bold; }
 
         .license-box { background: #070a0e; border: 1px solid var(--border-color); border-radius: 4px; padding: 10px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
         .license-inputs { display: flex; gap: 8px; align-items: center; }
@@ -134,7 +139,7 @@
 <div class="container">
     <header>
         <h1>AJI AUDIO LUMAJANG</h1>
-        <p>Digital Loudspeaker Management System Matrix • Core Engine Horeg v5.6.3</p>
+        <p>Digital Loudspeaker Management System Matrix • Core Engine Horeg v5.6.4</p>
     </header>
 
     <div class="master-grid">
@@ -189,8 +194,16 @@
                 </div>
 
                 <div class="preset-container">
-                    <button class="btn-preset-save" id="btn-save-preset">SAVE PRESET</button>
-                    <button class="btn-preset-load" id="btn-load-preset">LOAD PRESET</button>
+                    <div class="preset-select-wrapper">
+                        <label>LOAD PRESET (INTERNAL MEMORY DEVICE):</label>
+                        <select id="select-local-preset" class="select-preset-local">
+                            <option value="">-- Pilih / Muat Preset --</option>
+                        </select>
+                    </div>
+                    <div class="preset-actions">
+                        <button class="btn-preset-save" id="btn-save-preset">SAVE NEW PRESET</button>
+                        <button class="btn-preset-delete" id="btn-delete-preset" title="Hapus preset terpilih">HAPUS</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -474,6 +487,7 @@
             });
         });
         applyVisualLocks();
+        perbaruiDaftarPresetLokal(); 
     }
 
     function mulaiHitungMundur(expiredDateStr) {
@@ -681,6 +695,7 @@
             }
         }
 
+        /* FIXED ANTI-GLITCH: Transisi frekuensi halus tanpa letupan 'pop/click' digital */
         updateCrossover(hpfVal, lpfVal, slopeType) {
             const chKey = this.type.toLowerCase();
             let t = this.ctx.currentTime;
@@ -692,16 +707,20 @@
                 this.hpf1.type = "allpass"; this.hpf2.type = "allpass";
             } else {
                 this.hpf1.type = "highpass";
-                this.hpf1.frequency.exponentialRampToValueAtTime(hpfVal, t + 0.02);
-                this.hpf2.frequency.exponentialRampToValueAtTime(hpfVal, t + 0.02);
+                this.hpf1.frequency.setValueAtTime(this.hpf1.frequency.value, t);
+                this.hpf2.frequency.setValueAtTime(this.hpf2.frequency.value, t);
+                this.hpf1.frequency.exponentialRampToValueAtTime(hpfVal, t + 0.05);
+                this.hpf2.frequency.exponentialRampToValueAtTime(hpfVal, t + 0.05);
             }
 
             if (isLpfDeactivated) {
                 this.lpf1.type = "allpass"; this.lpf2.type = "allpass";
             } else {
                 this.lpf1.type = "lowpass";
-                this.lpf1.frequency.exponentialRampToValueAtTime(lpfVal, t + 0.02);
-                this.lpf2.frequency.exponentialRampToValueAtTime(lpfVal, t + 0.02);
+                this.lpf1.frequency.setValueAtTime(this.lpf1.frequency.value, t);
+                this.lpf2.frequency.setValueAtTime(this.lpf2.frequency.value, t);
+                this.lpf1.frequency.exponentialRampToValueAtTime(lpfVal, t + 0.05);
+                this.lpf2.frequency.exponentialRampToValueAtTime(lpfVal, t + 0.05);
             }
 
             if (!isHpfDeactivated || !isLpfDeactivated) {
@@ -728,7 +747,7 @@
                         this.lpf1.Q.setValueAtTime(0.707, t); this.lpf2.Q.setValueAtTime(0.707, t);
                     } else if (slopeType === "bw48") {
                         if(!isHpfDeactivated) this.hpf2.type = "highpass"; if(!isLpfDeactivated) this.lpf2.type = "lowpass";
-                        this.hpf1.Q.setValueAtTime(1.0, t); this.lpf1.Q.setValueAtTime(1.0, t);
+                        this.hpf1.Q.setValueAtTime(1.0, t); this.hpf2.Q.setValueAtTime(1.0, t);
                         this.lpf1.Q.setValueAtTime(1.0, t); this.lpf2.Q.setValueAtTime(1.0, t);
                     }
                 }
@@ -903,6 +922,30 @@
         nodeR.updateEQGains();
     }
 
+    /* KUMPULAN FUNGSI MANAGEMENT PRESET LOKAL (LOCALSTORAGE) */
+    function dapatkanPresetLokalSemua() {
+        const data = localStorage.getItem('ad_audio_dlms_local_presets');
+        return data ? JSON.parse(data) : {};
+    }
+
+    function simpanPresetLokalSemua(presets) {
+        localStorage.setItem('ad_audio_dlms_local_presets', JSON.stringify(presets));
+    }
+
+    function perbaruiDaftarPresetLokal() {
+        const selectEl = document.getElementById('select-local-preset');
+        const presets = dapatkanPresetLokalSemua();
+        
+        selectEl.innerHTML = '<option value="">-- Pilih / Muat Preset --</option>';
+        
+        Object.keys(presets).sort().forEach(nama => {
+            const opt = document.createElement('option');
+            opt.value = nama;
+            opt.innerText = nama;
+            selectEl.appendChild(opt);
+        });
+    }
+
     function connectUIElements() {
         const calculateGain = (db) => Math.pow(10, db / 20);
 
@@ -1057,10 +1100,11 @@
             if (nodeR) nodeR.updateEQGains();
         });
 
-        document.getElementById('btn-save-preset').addEventListener('click', async () => {
+        /* SAVE PRESET KE MEMORI HP CLIENT */
+        document.getElementById('btn-save-preset').addEventListener('click', () => {
             if (!isProUser) { triggerActivationNotice(); return; }
-            if (!window.fbDatabase) { alert("Firebase belum siap."); return; }
-            const presetName = prompt("Masukkan nama preset untuk disimpan di Firebase:", "Preset_Horeg_1");
+            
+            const presetName = prompt("Masukkan nama preset baru (Akan disimpan lokal di HP ini):", "Preset_Lokal_1");
             if (!presetName) return;
 
             const presetData = {
@@ -1087,75 +1131,96 @@
                 eqR: eqFreqsR.map((_, idx) => document.getElementById(`eq-r-${idx}`).value)
             };
 
-            try {
-                const presetRef = window.fbRef(window.fbDatabase, 'presets/' + presetName);
-                await window.fbSet(presetRef, presetData);
-                alert(`🚀 Preset "${presetName}" Berhasil Diunggah ke Firebase Cloud!`);
-            } catch (error) { console.error(error); alert('Gagal mengunggah preset.'); }
+            const semuaPreset = dapatkanPresetLokalSemua();
+            semuaPreset[presetName] = presetData;
+            simpanPresetLokalSemua(semuaPreset);
+            
+            perbaruiDaftarPresetLokal();
+            document.getElementById('select-local-preset').value = presetName; 
+            alert(`🚀 Preset "${presetName}" Berhasil disimpan di Memori HP.`);
         });
 
-        document.getElementById('btn-load-preset').addEventListener('click', async () => {
-            if (!isProUser) { triggerActivationNotice(); return; }
-            if (!window.fbDatabase) { alert("Firebase belum siap."); return; }
-            const presetName = prompt("Masukkan nama preset Firebase yang ingin dimuat:", "Preset_Horeg_1");
-            if (!presetName) return;
+        /* FIXED: LOAD PRESET DENGAN SINKRONISASI COUPLING DSP DAN DATA TYPING */
+        document.getElementById('select-local-preset').addEventListener('change', function() {
+            const namaPreset = this.value;
+            if (!namaPreset) return;
 
-            try {
-                const presetRef = window.fbRef(window.fbDatabase, 'presets/' + presetName);
-                const snapshot = await window.fbGet(presetRef);
-                if(!snapshot.exists()) { alert(`Preset "${presetName}" tidak ditemukan di Firebase!`); return; }
-                const preset = snapshot.val();
+            if (!isProUser) { 
+                this.value = ""; 
+                triggerActivationNotice(); 
+                return; 
+            }
 
-                document.getElementById('master-gain').value = preset.masterGain;
-                document.getElementById('gain-l').value = preset.gainL;
-                document.getElementById('hpf-l').value = preset.hpfL;
-                document.getElementById('lpf-l').value = preset.lpfL;
-                document.getElementById('slope-l').value = preset.slopeL;
-                document.getElementById('lim-thold-l').value = preset.limTholdL;
-                document.getElementById('lim-atk-l').value = preset.limAtkL;
-                document.getElementById('lim-rel-l').value = preset.limRelL;
+            const semuaPreset = dapatkanPresetLokalSemua();
+            const preset = semuaPreset[namaPreset];
+            if (!preset) { alert("Data preset rusak/tidak ditemukan."); return; }
 
-                document.getElementById('gain-r').value = preset.gainR;
-                document.getElementById('delay-r').value = preset.delayR;
-                document.getElementById('echo-feedback-r').value = preset.echoFeedbackR;
-                document.getElementById('echo-wet-r').value = preset.echoWetR;
-                document.getElementById('hpf-r').value = preset.hpfR;
-                document.getElementById('lpf-r').value = preset.lpfR;
-                document.getElementById('slope-r').value = preset.slopeR;
-                document.getElementById('lim-thold-r').value = preset.limTholdR;
-                document.getElementById('lim-atk-r').value = preset.limAtkR;
-                document.getElementById('lim-rel-r').value = preset.limRelR;
+            // 1. Terapkan Nilai ke Input Visual Elemen HTML (UI)
+            document.getElementById('master-gain').value = preset.masterGain;
+            document.getElementById('gain-l').value = preset.gainL;
+            document.getElementById('hpf-l').value = preset.hpfL;
+            document.getElementById('lpf-l').value = preset.lpfL;
+            document.getElementById('slope-l').value = preset.slopeL;
+            document.getElementById('lim-thold-l').value = preset.limTholdL;
+            document.getElementById('lim-atk-l').value = preset.limAtkL;
+            document.getElementById('lim-rel-l').value = preset.limRelL;
 
-                preset.eqL.forEach((val, idx) => { const s = document.getElementById(`eq-l-${idx}`); if(s) { s.value = val; let v = parseFloat(val); document.getElementById(`eq-val-l-${idx}`).innerText = (v > 0 ? `+${v}` : v) + "dB"; } });
-                preset.eqR.forEach((val, idx) => { const s = document.getElementById(`eq-r-${idx}`); if(s) { s.value = val; let v = parseFloat(val); document.getElementById(`eq-val-r-${idx}`).innerText = (v > 0 ? `+${v}` : v) + "dB"; } });
+            document.getElementById('gain-r').value = preset.gainR;
+            document.getElementById('delay-r').value = preset.delayR;
+            document.getElementById('echo-feedback-r').value = preset.echoFeedbackR;
+            document.getElementById('echo-wet-r').value = preset.echoWetR;
+            document.getElementById('hpf-r').value = preset.hpfR;
+            document.getElementById('lpf-r').value = preset.lpfR;
+            document.getElementById('slope-r').value = preset.slopeR;
+            document.getElementById('lim-thold-r').value = preset.limTholdR;
+            document.getElementById('lim-atk-r').value = preset.limAtkR;
+            document.getElementById('lim-rel-r').value = preset.limRelR;
 
-                document.getElementById('master-gain-disp').innerText = parseFloat(preset.masterGain).toFixed(1) + " dB";
-                document.getElementById('gain-disp-l').innerText = parseFloat(preset.gainL).toFixed(1) + " dB";
-                document.getElementById('gain-disp-r').innerText = parseFloat(preset.gainR).toFixed(1) + " dB";
-                
-                document.getElementById('hpf-input-l').value = preset.hpfL;
-                document.getElementById('lpf-input-l').value = preset.lpfL;
-                document.getElementById('hpf-input-r').value = preset.hpfR;
-                document.getElementById('lpf-input-r').value = preset.lpfR;
+            // 2. Sinkronisasi Teks Digital Readout UI
+            document.getElementById('master-gain-disp').innerText = parseFloat(preset.masterGain).toFixed(1) + " dB";
+            document.getElementById('gain-disp-l').innerText = parseFloat(preset.gainL).toFixed(1) + " dB";
+            document.getElementById('gain-disp-r').innerText = parseFloat(preset.gainR).toFixed(1) + " dB";
+            
+            document.getElementById('hpf-input-l').value = preset.hpfL;
+            document.getElementById('lpf-input-l').value = preset.lpfL;
+            document.getElementById('hpf-input-r').value = preset.hpfR;
+            document.getElementById('lpf-input-r').value = preset.lpfR;
 
-                document.getElementById('hpf-l').value = preset.hpfL;
-                document.getElementById('lpf-l').value = preset.lpfL;
-                document.getElementById('hpf-r').value = preset.hpfR;
-                document.getElementById('lpf-r').value = preset.lpfR;
+            document.getElementById('delay-disp-r').innerText = parseFloat(preset.delayR).toFixed(1) + " ms";
+            document.getElementById('echo-disp-r').innerText = preset.echoFeedbackR + " %";
+            document.getElementById('echo-wet-disp').innerText = preset.echoWetR + " %";
 
-                document.getElementById('delay-disp-r').innerText = parseFloat(preset.delayR).toFixed(1) + " ms";
-                document.getElementById('echo-disp-r').innerText = preset.echoFeedbackR + " %";
-                document.getElementById('echo-wet-disp').innerText = preset.echoWetR + " %";
+            // 3. Render Nilai Slider EQ Matrix
+            preset.eqL.forEach((val, idx) => { const s = document.getElementById(`eq-l-${idx}`); if(s) { s.value = val; let v = parseFloat(val); document.getElementById(`eq-val-l-${idx}`).innerText = (v > 0 ? `+${v}` : v) + "dB"; } });
+            preset.eqR.forEach((val, idx) => { const s = document.getElementById(`eq-r-${idx}`); if(s) { s.value = val; let v = parseFloat(val); document.getElementById(`eq-val-r-${idx}`).innerText = (v > 0 ? `+${v}` : v) + "dB"; } });
 
-                document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
-                const targetMode = preset.currentMode || "off";
-                const activeBtn = document.querySelector(`.btn-mode[data-mode="${targetMode}"]`);
-                if(activeBtn) activeBtn.classList.add('active');
-                currentMode = targetMode;
+            // 4. Sinkronisasi Tombol Mode DSP Sub Bass Aktif
+            document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
+            const targetMode = preset.currentMode || "off";
+            const activeBtn = document.querySelector(`.btn-mode[data-mode="${targetMode}"]`);
+            if(activeBtn) activeBtn.classList.add('active');
+            currentMode = targetMode;
 
-                if(audioCtx && nodeL && nodeR) { applyCurrentMode(); syncAllHardwareSlidersToDSP(); }
-                alert('Preset Firebase Sukses Dipasang!');
-            } catch (error) { console.error(error); alert('Gagal mengambil data preset.'); }
+            // 5. Paksa Push Sinkronisasi Realtime ke Mesin Utama Audio Graph (Web Audio API)
+            if(audioCtx && nodeL && nodeR) { 
+                applyCurrentMode(); 
+                syncAllHardwareSlidersToDSP(); 
+            }
+        });
+
+        /* HAPUS PRESET DARI LOKAL MEMORI */
+        document.getElementById('btn-delete-preset').addEventListener('click', () => {
+            const selectEl = document.getElementById('select-local-preset');
+            const namaPreset = selectEl.value;
+            
+            if(!namaPreset) { alert("Pilih preset yang ingin dihapus terlebih dahulu pada list."); return; }
+            if(!confirm(`Apakah Anda yakin ingin menghapus preset "${namaPreset}" dari HP ini?`)) return;
+
+            const semuaPreset = dapatkanPresetLokalSemua();
+            delete semuaPreset[namaPreset];
+            simpanPresetLokalSemua(semuaPreset);
+            perbaruiDaftarPresetLokal();
+            alert("Preset berhasil dihapus.");
         });
     }
 
