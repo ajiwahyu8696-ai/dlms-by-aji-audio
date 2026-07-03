@@ -313,7 +313,7 @@
                     </div>
                     <div class="control-row"><label>Threshold</label><input type="range" id="lim-thold-r" min="-20" max="0" step="0.5" value="-3.0"><span class="val-disp" id="lim-thold-disp-r">-3.0 dB</span></div>
                     <div class="control-row"><label>Attack</label><input type="range" id="lim-atk-r" min="1" max="100" step="1" value="3"><span class="val-disp" id="lim-atk-disp-r">3 ms</span></div>
-                    <div class="control-row"><label>Release</label><input type="range" id="lim-rel-r" min="50" max="1000" step="10" value="60"><span class="val-disp" id="lim-thold-disp-r">60 ms</span></div>
+                    <div class="control-row"><label>Release</label><input type="range" id="lim-rel-r" min="50" max="1000" step="10" value="60"><span class="val-disp" id="lim-rel-disp-r">60 ms</span></div>
                 </div>
             </div>
 
@@ -1023,9 +1023,9 @@
         document.getElementById('echo-wet-r').addEventListener('input', (e) => { document.getElementById('echo-wet-disp').innerText = e.target.value + " %"; if(nodeR) nodeR.updateEcho(); });
         document.getElementById('slope-r').addEventListener('change', updateCHR);
 
-        document.getElementById('lim-thold-r').addEventListener('input', (e) => { if(checkLimiterLock('lim-thold-r', -3.0)) { if(nodeR) nodeR.updateLimiterHardware(); } });
-        document.getElementById('lim-atk-r').addEventListener('input', (e) => { if(checkLimiterLock('lim-atk-r', 3)) { if(nodeR) nodeR.updateLimiterHardware(); } });
-        document.getElementById('lim-rel-r').addEventListener('input', (e) => { if(checkLimiterLock('lim-rel-r', 60)) { if(nodeR) nodeR.updateLimiterHardware(); } });
+        document.getElementById('lim-thold-r').addEventListener('input', (e) => { if(checkLimiterLock('lim-thold-r', -3.0)) { document.getElementById('lim-thold-disp-r').innerText = parseFloat(e.target.value).toFixed(1) + " dB"; if(nodeR) nodeR.updateLimiterHardware(); } });
+        document.getElementById('lim-atk-r').addEventListener('input', (e) => { if(checkLimiterLock('lim-atk-r', 3)) { document.getElementById('lim-atk-disp-r').innerText = e.target.value + " ms"; if(nodeR) nodeR.updateLimiterHardware(); } });
+        document.getElementById('lim-rel-r').addEventListener('input', (e) => { if(checkLimiterLock('lim-rel-r', 60)) { document.getElementById('lim-rel-disp-r').innerText = e.target.value + " ms"; if(nodeR) nodeR.updateLimiterHardware(); } });
 
         document.getElementById('mute-ch-l').addEventListener('click', function() { muteState.l.ch = !muteState.l.ch; this.classList.toggle('active', muteState.l.ch); this.innerText = muteState.l.ch ? "MUTED" : "MUTE"; if(nodeL) nodeL.setMute(muteState.l.ch); });
         document.getElementById('mute-ch-r').addEventListener('click', function() { muteState.r.ch = !muteState.r.ch; this.classList.toggle('active', muteState.r.ch); this.innerText = muteState.r.ch ? "MUTED" : "MUTE"; if(nodeR) nodeR.setMute(muteState.r.ch); });
@@ -1148,9 +1148,10 @@
                 document.getElementById('echo-wet-disp').innerText = preset.echoWetR + " %";
 
                 document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
-                const activeBtn = document.querySelector(`.btn-mode[data-mode="${preset.currentMode}"]`);
+                const targetMode = preset.currentMode || "off";
+                const activeBtn = document.querySelector(`.btn-mode[data-mode="${targetMode}"]`);
                 if(activeBtn) activeBtn.classList.add('active');
-                currentMode = preset.currentMode;
+                currentMode = targetMode;
 
                 if(audioCtx && nodeL && nodeR) { applyCurrentMode(); syncAllHardwareSlidersToDSP(); }
                 alert('Preset Firebase Sukses Dipasang!');
