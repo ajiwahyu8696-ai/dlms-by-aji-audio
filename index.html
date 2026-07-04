@@ -396,6 +396,9 @@
 
     let internalGenNode = null; 
 
+    // GLOBAL UTILITY: Ditempatkan pada cakupan global agar dapat diakses oleh load preset event listener
+    const calculateGain = (db) => Math.pow(10, db / 20);
+
     function ambilAtauBuatDeviceId() {
         let devId = localStorage.getItem('aji_audio_device_id');
         if (!devId) {
@@ -695,7 +698,6 @@
             }
         }
 
-        /* FIXED ANTI-GLITCH: Transisi frekuensi halus tanpa letupan 'pop/click' digital */
         updateCrossover(hpfVal, lpfVal, slopeType) {
             const chKey = this.type.toLowerCase();
             let t = this.ctx.currentTime;
@@ -747,7 +749,7 @@
                         this.lpf1.Q.setValueAtTime(0.707, t); this.lpf2.Q.setValueAtTime(0.707, t);
                     } else if (slopeType === "bw48") {
                         if(!isHpfDeactivated) this.hpf2.type = "highpass"; if(!isLpfDeactivated) this.lpf2.type = "lowpass";
-                        this.hpf1.Q.setValueAtTime(1.0, t); this.hpf2.Q.setValueAtTime(1.0, t);
+                        this.hpf1.Q.setValueAtTime(1.0, t); this.lpf1.Q.setValueAtTime(1.0, t);
                         this.lpf1.Q.setValueAtTime(1.0, t); this.lpf2.Q.setValueAtTime(1.0, t);
                     }
                 }
@@ -757,19 +759,27 @@
         updateLimiterHardware() {
             const chKey = this.type.toLowerCase();
             let t = this.ctx.currentTime;
-            if (muteState[chKey].limMute) {
+            
+            // SECURITY FILTER: Cegah total pemrosesan limiter jika status bukan Pro User
+            if (!isProUser || muteState[chKey].limMute) {
                 this.limiter.threshold.setValueAtTime(0, t);
                 this.limiter.ratio.setValueAtTime(1, t);
-            } else {
-                let tholdVal = parseFloat(document.getElementById(`lim-thold-${chKey}`).value);
-                let atkVal = parseFloat(document.getElementById(`lim-atk-${chKey}`).value) / 1000; 
-                let relVal = parseFloat(document.getElementById(`lim-rel-${chKey}`).value) / 1000; 
-                if (relVal > 1.0) relVal = 1.0;
-                this.limiter.threshold.setValueAtTime(tholdVal, t);
-                this.limiter.attack.setValueAtTime(atkVal, t);
-                this.limiter.release.setValueAtTime(relVal, t);
-                this.limiter.ratio.setValueAtTime(20, t); 
+                return;
             }
+
+            let tholdNode = document.getElementById(`lim-thold-${chKey}`);
+            let atkNode = document.getElementById(`lim-atk-${chKey}`);
+            let relNode = document.getElementById(`lim-rel-${chKey}`);
+            
+            let tholdVal = tholdNode ? parseFloat(tholdNode.value) : 0;
+            let atkVal = atkNode ? parseFloat(atkNode.value) / 1000 : 0.03; 
+            let relVal = relNode ? parseFloat(relNode.value) / 1000 : 0.1; 
+            if (relVal > 1.0) relVal = 1.0;
+            
+            this.limiter.threshold.setValueAtTime(tholdVal, t);
+            this.limiter.attack.setValueAtTime(atkVal, t);
+            this.limiter.release.setValueAtTime(relVal, t);
+            this.limiter.ratio.setValueAtTime(20, t); 
         }
 
         updateEQGains() {
@@ -778,6 +788,11 @@
                 if (muteState[chKey].eq) {
                     eq.gain.setValueAtTime(0, this.ctx.currentTime);
                 } else {
+                    // SECURITY FILTER: Batasi pemrosesan band 6-15 untuk user gratisan di tingkat DSP graph
+                    if(!isProUser && idx > 4) {
+                        eq.gain.setValueAtTime(0, this.ctx.currentTime);
+                        return;
+                    }
                     let slider = document.getElementById(`eq-${chKey}-${idx}`);
                     let sliderVal = slider ? parseFloat(slider.value) : 0;
                     eq.gain.setValueAtTime(sliderVal, this.ctx.currentTime);
@@ -889,7 +904,6 @@
 
     function syncAllHardwareSlidersToDSP() {
         if (!audioCtx || !nodeL || !nodeR) return; 
-        const calculateGain = (db) => Math.pow(10, db / 20);
         let t = audioCtx.currentTime;
 
         let mg = parseFloat(document.getElementById('master-gain').value);
@@ -920,6 +934,13 @@
         nodeR.updateEcho();
         nodeR.updateLimiterHardware();
         nodeR.updateEQGains();
+
+        // INTEGRITY PROTECTOR: Hancurkan paksa generator jika dicurangi lewat HTML element inject di mode gratisan
+        if (!isProUser && document.getElementById('gen-type').value !== 'off') {
+            document.getElementById('gen-type').value = 'off';
+            if (internalGenNode) { try { internalGenNode.stop(); } catch(e){} internalGenNode.disconnect(); internalGenNode = null; }
+            document.getElementById('sine-freq-row').style.display = 'none';
+        }
     }
 
     /* KUMPULAN FUNGSI MANAGEMENT PRESET LOKAL (LOCALSTORAGE) */
@@ -947,8 +968,6 @@
     }
 
     function connectUIElements() {
-        const calculateGain = (db) => Math.pow(10, db / 20);
-
         document.getElementById('master-gain').addEventListener('input', (e) => {
             document.getElementById('master-gain-disp').innerText = parseFloat(e.target.value).toFixed(1) + " dB";
             if (masterGainNode) masterGainNode.gain.setValueAtTime(calculateGain(parseFloat(e.target.value)), audioCtx.currentTime);
@@ -1140,7 +1159,7 @@
             alert(`🚀 Preset "${presetName}" Berhasil disimpan di Memori HP.`);
         });
 
-        /* FIXED: LOAD PRESET DENGAN SINKRONISASI COUPLING DSP DAN DATA TYPING */
+        /* LOAD PRESET (SINKRONISASI PENUH BEBAS DRAMA EROR COUPLING) */
         document.getElementById('select-local-preset').addEventListener('change', function() {
             const namaPreset = this.value;
             if (!namaPreset) return;
@@ -1155,7 +1174,7 @@
             const preset = semuaPreset[namaPreset];
             if (!preset) { alert("Data preset rusak/tidak ditemukan."); return; }
 
-            // 1. Terapkan Nilai ke Input Visual Elemen HTML (UI)
+            // 1. Terapkan Nilai ke Input Visual Elemen HTML (UI Sliders)
             document.getElementById('master-gain').value = preset.masterGain;
             document.getElementById('gain-l').value = preset.gainL;
             document.getElementById('hpf-l').value = preset.hpfL;
@@ -1176,7 +1195,7 @@
             document.getElementById('lim-atk-r').value = preset.limAtkR;
             document.getElementById('lim-rel-r').value = preset.limRelR;
 
-            // 2. Sinkronisasi Teks Digital Readout UI
+            // 2. Sinkronisasi Teks Readout & Kotak Angka Manual (HPF/LPF)
             document.getElementById('master-gain-disp').innerText = parseFloat(preset.masterGain).toFixed(1) + " dB";
             document.getElementById('gain-disp-l').innerText = parseFloat(preset.gainL).toFixed(1) + " dB";
             document.getElementById('gain-disp-r').innerText = parseFloat(preset.gainR).toFixed(1) + " dB";
@@ -1189,6 +1208,14 @@
             document.getElementById('delay-disp-r').innerText = parseFloat(preset.delayR).toFixed(1) + " ms";
             document.getElementById('echo-disp-r').innerText = preset.echoFeedbackR + " %";
             document.getElementById('echo-wet-disp').innerText = preset.echoWetR + " %";
+            
+            document.getElementById('lim-thold-disp-l').innerText = parseFloat(preset.limTholdL).toFixed(1) + " dB";
+            document.getElementById('lim-atk-disp-l').innerText = preset.limAtkL + " ms";
+            document.getElementById('lim-rel-disp-l').innerText = preset.limRelL + " ms";
+            
+            document.getElementById('lim-thold-disp-r').innerText = parseFloat(preset.limTholdR).toFixed(1) + " dB";
+            document.getElementById('lim-atk-disp-r').innerText = preset.limAtkR + " ms";
+            document.getElementById('lim-rel-disp-r').innerText = preset.limRelR + " ms";
 
             // 3. Render Nilai Slider EQ Matrix
             preset.eqL.forEach((val, idx) => { const s = document.getElementById(`eq-l-${idx}`); if(s) { s.value = val; let v = parseFloat(val); document.getElementById(`eq-val-l-${idx}`).innerText = (v > 0 ? `+${v}` : v) + "dB"; } });
@@ -1201,9 +1228,20 @@
             if(activeBtn) activeBtn.classList.add('active');
             currentMode = targetMode;
 
-            // 5. Paksa Push Sinkronisasi Realtime ke Mesin Utama Audio Graph (Web Audio API)
+            // 5. Paksa Push Sinkronisasi Realtime ke Graph Web Audio API
             if(audioCtx && nodeL && nodeR) { 
                 applyCurrentMode(); 
+                
+                let t = audioCtx.currentTime;
+                nodeL.currentGainVal = calculateGain(parseFloat(preset.gainL));
+                if(!muteState.l.ch) nodeL.gainNode.gain.setValueAtTime(nodeL.currentGainVal, t);
+                
+                nodeR.currentGainVal = calculateGain(parseFloat(preset.gainR));
+                if(!muteState.r.ch) nodeR.gainNode.gain.setValueAtTime(nodeR.currentGainVal, t);
+
+                nodeL.updateLimiterHardware();
+                nodeR.updateLimiterHardware();
+
                 syncAllHardwareSlidersToDSP(); 
             }
         });
@@ -1233,7 +1271,8 @@
             for (let i = 0; i < dataArray.length; i++) { let v = (dataArray[i] - 128) / 128; sum += v * v; }
             let rms = Math.sqrt(sum / dataArray.length); let db = 20 * Math.log10(rms); if (db === -Infinity || db < -90) db = -90;
             
-            let currentThold = parseFloat(document.getElementById(`lim-thold-${chLabel}`).value);
+            let tholdNode = document.getElementById(`lim-thold-${chLabel}`);
+            let currentThold = tholdNode ? parseFloat(tholdNode.value) : 0;
             let isMuted = muteState[chLabel].limMute;
 
             if (db <= -55) { 
