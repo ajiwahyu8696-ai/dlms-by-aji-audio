@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AJI AUDIO LUMAJANG - DLMS HOREG PRO v5.6.4 (Local Presets Secured)</title>
+    <title>AJI AUDIO LUMAJANG - DLMS HOREG PRO v5.6.4 (Secured)</title>
     <style>
         :root {
             --bg-main: #070a0e;
@@ -61,12 +61,12 @@
         .dlms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         @media (max-width: 950px) { .dlms-grid { grid-template-columns: 1fr; } }
 
-        .channel-card { background: var(--bg-strip); border: 2px solid var(--border-color); border-radius: 6px; padding: 18px; }
+        .channel-card { background: var(--bg-strip); border: 2px solid var(--border-color); border-radius: 6px; padding: 18px; overflow: hidden; }
         .ch-l { border-top: 4px solid var(--accent-blue); }
         .ch-r { border-top: 4px solid var(--accent-pink); }
 
-        .channel-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px; }
-        .channel-title-group { display: flex; align-items: center; gap: 8px; }
+        .channel-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;}
+        .channel-title-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .channel-title { font-size: 1.1rem; font-weight: bold; color: #fff; letter-spacing: 1px; }
         .channel-spec { font-size: 0.75rem; background: #070a0e; padding: 4px 8px; border-radius: 3px; color: #58a6ff; border: 1px solid var(--border-color); font-weight: bold; }
 
@@ -83,22 +83,30 @@
 
         .control-row { display: grid; grid-template-columns: 110px 1fr 70px; align-items: center; margin-bottom: 10px; gap: 10px; position: relative; }
         .control-row.with-mute { grid-template-columns: 110px 1fr 50px 50px 85px; }
+        @media (max-width: 600px) {
+            .control-row { grid-template-columns: 1fr; gap: 5px; }
+            .control-row.with-mute { grid-template-columns: 1fr 1fr 1fr; }
+            .control-row.with-mute > label { grid-column: span 3; }
+            .control-row.with-mute > input[type="range"] { grid-column: span 3; }
+        }
+
         label { font-size: 0.8rem; color: #8b9bb4; text-transform: uppercase; font-weight: bold; }
-        select { background: #070a0e; border: 1px solid var(--border-color); color: #fff; padding: 5px; border-radius: 3px; font-size: 0.75rem; font-weight: bold; }
+        select { background: #070a0e; border: 1px solid var(--border-color); color: #fff; padding: 5px; border-radius: 3px; font-size: 0.75rem; font-weight: bold; width: 100%; }
         
-        input[type="range"] { -webkit-appearance: none; height: 6px; background: #070a0e; border-radius: 3px; outline: none; border: 1px solid #1c232a; }
+        input[type="range"] { -webkit-appearance: none; height: 6px; background: #070a0e; border-radius: 3px; outline: none; border: 1px solid #1c232a; width: 100%; }
         .ch-l input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 2px; background: var(--accent-blue); cursor: pointer; box-shadow: 0 0 6px var(--accent-blue); border: none; }
         .ch-r input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 2px; background: var(--accent-pink); cursor: pointer; box-shadow: 0 0 6px var(--accent-pink); border: none; }
         .echo-block input[type="range"]::-webkit-slider-thumb { background: var(--accent-green) !important; box-shadow: 0 0 6px var(--accent-green) !important; }
         .val-disp { text-align: right; font-size: 0.85rem; font-weight: bold; color: #fff; }
+        @media (max-width: 600px) { .val-disp { text-align: left; } }
 
         .freq-input-box { width: 100%; background: #040608; border: 1px solid #3a4756; color: #fff; text-align: right; padding: 3px 5px; font-size: 0.8rem; font-weight: bold; border-radius: 3px; }
         .freq-input-box:focus { border-color: var(--accent-green); outline: none; box-shadow: 0 0 5px rgba(57, 255, 20, 0.4); }
         .freq-input-box::-webkit-inner-spin-button, .freq-input-box::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         .freq-input-box { -moz-appearance: textfield; }
 
-        .eq-container { background: #070a0e; padding: 12px; border-radius: 4px; border: 1px solid var(--border-color); margin-top: 15px; }
-        .eq-header-block { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; }
+        .eq-container { background: #070a0e; padding: 12px; border-radius: 4px; border: 1px solid var(--border-color); margin-top: 15px; width: 100%; box-sizing: border-box; }
+        .eq-header-block { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; flex-wrap: wrap; gap: 10px; }
         .eq-title { font-size: 0.75rem; color: #8b9bb4; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
         
         .eq-wrapper { display: flex; gap: 5px; position: relative; height: 200px; padding-top: 5px; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--accent-green) #070a0e; }
@@ -115,9 +123,8 @@
         .gradient-highlight { border: 2px solid #2e3b2f !important; background: #0c120e !important; }
         .limiter-horeg-panel { border: 1px solid rgba(255, 153, 0, 0.3) !important; background: #16120c !important; margin-top: 12px; padding: 12px; border-radius: 4px; }
 
-        /* MODIFIKASI PANEL PRESET LOKAL */
         .preset-container { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 12px; }
-        .preset-actions { display: flex; gap: 5px; }
+        .preset-actions { display: flex; gap: 5px; flex-wrap: wrap;}
         .btn-preset-save { background: #1b4d22; border: 1px solid var(--accent-green); color: #fff; font-size: 0.75rem; padding: 6px 10px; flex: 1; font-weight: bold; }
         .btn-preset-delete { background: #4d1b1b; border: 1px solid var(--led-red); color: #fff; font-size: 0.75rem; padding: 6px 10px; font-weight: bold; }
         .preset-select-wrapper { display: flex; flex-direction: column; gap: 4px; }
@@ -127,16 +134,59 @@
         .license-box { background: #070a0e; border: 1px solid var(--border-color); border-radius: 4px; padding: 10px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
         .license-inputs { display: flex; gap: 8px; align-items: center; }
         .license-box input { flex: 1; background: #111418; border: 1px solid #323942; color: #fff; padding: 6px; font-size: 0.75rem; border-radius: 3px; font-weight: bold; }
-        .license-countdown { font-size: 0.7rem; color: #8b9bb4; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; text-align: left; padding-left: 2px; min-height: 12px; }
+        
+        .license-countdown { 
+            font-size: 0.75rem; 
+            color: #8b9bb4; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            text-align: center; 
+            padding: 6px; 
+            min-height: 12px;
+            background: #040608;
+            border: 1px solid #1c232a;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        .license-countdown.active-glow {
+            color: var(--accent-green);
+            text-shadow: 0 0 5px rgba(57, 255, 20, 0.8), 0 0 10px rgba(57, 255, 20, 0.4);
+            border-color: var(--accent-green);
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.15) inset;
+        }
+        .license-countdown.expired-glow {
+            color: var(--led-red);
+            text-shadow: 0 0 5px rgba(255, 34, 0, 0.8), 0 0 10px rgba(255, 34, 0, 0.4);
+            border-color: var(--led-red);
+            box-shadow: 0 0 10px rgba(255, 34, 0, 0.15) inset;
+        }
 
         .locked-feature { filter: blur(1.5px) brightness(0.4) !important; pointer-events: none !important; user-select: none !important; }
         .lock-overlay-container { position: relative; }
         .lock-badge { position: absolute; top: 12px; right: 12px; background: rgba(225, 30, 30, 0.9); color: #fff; padding: 3px 8px; font-size: 0.6rem; font-weight: bold; border-radius: 3px; z-index: 10; letter-spacing: 1px; box-shadow: 0 2px 6px rgba(0,0,0,0.6); pointer-events: auto; cursor: pointer; white-space: nowrap; }
+
+        .audio-init-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.9); z-index: 9999; display: flex; 
+            justify-content: center; align-items: center; flex-direction: column; gap: 20px;
+        }
+        .btn-init-audio {
+            background: var(--accent-blue); color: #000; padding: 15px 30px; 
+            font-size: 1.2rem; font-weight: 900; border: none; border-radius: 8px; 
+            cursor: pointer; box-shadow: 0 0 20px rgba(0, 236, 255, 0.5);
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div id="init-audio-overlay" class="audio-init-overlay">
+    <h2 style="color: var(--accent-blue); letter-spacing: 2px;">DLMS ENGINE STANDBY</h2>
+    <p style="color: #8b9bb4; text-align:center; max-width:400px; font-size: 0.9rem;">Sistem membutuhkan interaksi pertama untuk menyalakan Core Audio Engine.</p>
+    <button id="btn-start-engine" class="btn-init-audio">POWER ON / START ENGINE</button>
+</div>
+
+<div class="container" id="main-app" style="filter: blur(5px); pointer-events: none; transition: filter 0.5s ease;">
     <header>
         <h1>AJI AUDIO LUMAJANG</h1>
         <p>Digital Loudspeaker Management System Matrix • Core Engine Horeg v5.6.4</p>
@@ -172,7 +222,7 @@
         </div>
         
         <div class="lock-overlay-container">
-            <div id="badge-generator-lock" class="lock-badge" onclick="triggerActivationNotice()">PRO LOCKED</div>
+            <div class="lock-badge trigger-activation">PRO LOCKED</div>
             <div id="panel-generator-group" class="panel-block gradient-highlight">
                 <label style="font-weight: bold; color: var(--accent-green);">INTERNAL TEST TONE GEN</label>
                 <div style="display: flex; gap: 5px; margin-top: 8px;">
@@ -241,15 +291,35 @@
                 <div><input type="number" id="lpf-input-l" class="freq-input-box" min="50" max="400" value="110"></div>
             </div>
             
-            <div class="control-row"><label>X-Over Type</label><select id="slope-l"><option value="lr12">Linkwitz-Riley 12dB</option><option value="lr24" selected>Linkwitz-Riley 24dB (PRO LOCK)</option><option value="lr48">Linkwitz-Riley 48dB (PRO LOCK)</option><option value="bw12">Butterworth 12dB</option><option value="bw24">Butterworth 24dB (PRO LOCK)</option><option value="bw48">Butterworth 48dB (PRO LOCK)</option></select><span></span></div>
+            <div class="control-row">
+                <label>X-Over Type</label>
+                <select id="slope-l">
+                    <option value="lr12">Linkwitz-Riley 12dB</option>
+                    <option value="lr24" selected>Linkwitz-Riley 24dB (PRO LOCK)</option>
+                    <option value="lr48">Linkwitz-Riley 48dB (PRO LOCK)</option>
+                    <option value="bw12">Butterworth 12dB</option>
+                    <option value="bw24">Butterworth 24dB (PRO LOCK)</option>
+                    <option value="bw48">Butterworth 48dB (PRO LOCK)</option>
+                </select>
+                <span></span>
+            </div>
             
             <div class="lock-overlay-container">
-                <div id="badge-limiter-l-lock" class="lock-badge" onclick="triggerActivationNotice()">PRO LOCK</div>
+                <div class="lock-badge trigger-activation">PRO LOCK</div>
                 <div id="panel-limiter-l" class="panel-block limiter-horeg-panel">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                         <label style="color: var(--led-orange); font-weight: bold;">🔒 LIMITER SETTING (CH 1)</label>
                         <div style="width: 120px;"><button class="btn-lim-mute" id="lim-mute-l">LIMIT MUTE</button></div>
                     </div>
+
+                    <div class="vu-meter-rack" style="margin-bottom: 12px; padding: 6px; background: #060402; border: 1px solid #36220b;">
+                        <div class="vu-top-info" style="font-size: 0.65rem; color: var(--led-orange); margin-bottom: 4px;">
+                            <span>LIMITER GR METER</span>
+                            <span id="gr-txt-l" style="font-weight: bold;">0.0 dB</span>
+                        </div>
+                        <div class="vu-bar" id="vu-gr-l" style="height: 8px; flex-direction: row-reverse; gap: 3px;"></div>
+                    </div>
+                    
                     <div class="control-row"><label>Threshold</label><input type="range" id="lim-thold-l" min="-20" max="0" step="0.5" value="-1.0"><span class="val-disp" id="lim-thold-disp-l">-1.0 dB</span></div>
                     <div class="control-row"><label>Attack</label><input type="range" id="lim-atk-l" min="1" max="100" step="1" value="30"><span class="val-disp" id="lim-atk-disp-l">30 ms</span></div>
                     <div class="control-row"><label>Release</label><input type="range" id="lim-rel-l" min="50" max="1000" step="10" value="500"><span class="val-disp" id="lim-rel-disp-l">500 ms</span></div>
@@ -258,10 +328,10 @@
 
             <div class="eq-container">
                 <div class="eq-header-block">
-                    <div class="eq-title">15-Band Low-Freq EQ Matrix</div>
+                    <div class="eq-title">15-Band Low-Freq GEQ Matrix L</div>
                     <div style="display: flex; gap: 5px;">
-                        <button class="btn-byp" id="reset-eq-l" style="font-size: 0.75rem; padding: 4px 8px;">RESET EQ</button>
-                        <button class="btn-mute" id="mute-eq-l">BYPASS EQ</button>
+                        <button class="btn-byp" id="reset-eq-l" style="font-size: 0.75rem; padding: 4px 8px;">RESET GEQ</button>
+                        <button class="btn-mute" id="mute-eq-l">BYPASS GEQ</button>
                     </div>
                 </div>
                 <div class="eq-wrapper">
@@ -288,10 +358,10 @@
             
             <div class="control-row panel-block delay-highlight"><label style="color: var(--accent-pink); font-weight: bold;">TIME DELAY</label><input type="range" id="delay-r" min="0" max="50" step="0.1" value="0"><span class="val-disp" id="delay-disp-r" style="color: var(--accent-pink);">0.0 ms</span></div>
             
-            <div class="control-row panel-block echo-block" style="border: 1px solid rgba(57, 255, 20, 0.3); background: #0c140f; grid-template-columns: 100px 1fr 50px 70px; gap:5px;">
+            <div class="control-row panel-block echo-block" style="border: 1px solid rgba(57, 255, 20, 0.3); background: #0c140f; gap:5px;">
                 <label style="color: var(--accent-green); font-weight: bold; font-size:0.75rem;">Echo Fback</label>
                 <input type="range" id="echo-feedback-r" min="0" max="85" step="1" value="40">
-                <button class="btn-echo" id="btn-echo-toggle-r" style="padding: 2px 4px; font-size: 0.65rem;">ECHO BYP</button>
+                <button class="btn-echo" id="btn-echo-toggle-r" style="padding: 2px 4px; font-size: 0.65rem;">BYP</button>
                 <span class="val-disp" id="echo-disp-r" style="color: var(--accent-green); font-size:0.75rem;">40 %</span>
             </div>
             <div class="control-row panel-block echo-block" style="border: 1px solid rgba(57, 255, 20, 0.2); background: #080d0a; margin-top:-5px;">
@@ -315,15 +385,35 @@
                 <div><input type="number" id="lpf-input-r" class="freq-input-box" min="3000" max="20000" value="16500"></div>
             </div>
             
-            <div class="control-row"><label>X-Over Type</label><select id="slope-r"><option value="lr12">Linkwitz-Riley 12dB</option><option value="lr24" selected>Linkwitz-Riley 24dB (PRO LOCK)</option><option value="lr48">Linkwitz-Riley 48dB (PRO LOCK)</option><option value="bw12">Butterworth 12dB</option><option value="bw24">Butterworth 24dB (PRO LOCK)</option><option value="bw48">Butterworth 48dB (PRO LOCK)</option></select><span></span></div>
+            <div class="control-row">
+                <label>X-Over Type</label>
+                <select id="slope-r">
+                    <option value="lr12">Linkwitz-Riley 12dB</option>
+                    <option value="lr24" selected>Linkwitz-Riley 24dB (PRO LOCK)</option>
+                    <option value="lr48">Linkwitz-Riley 48dB (PRO LOCK)</option>
+                    <option value="bw12">Butterworth 12dB</option>
+                    <option value="bw24">Butterworth 24dB (PRO LOCK)</option>
+                    <option value="bw48">Butterworth 48dB (PRO LOCK)</option>
+                </select>
+                <span></span>
+            </div>
             
             <div class="lock-overlay-container">
-                <div id="badge-limiter-r-lock" class="lock-badge" onclick="triggerActivationNotice()">PRO LOCK</div>
+                <div class="lock-badge trigger-activation">PRO LOCK</div>
                 <div id="panel-limiter-r" class="panel-block limiter-horeg-panel">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                         <label style="color: var(--led-orange); font-weight: bold;">🔒 LIMITER SETTING (CH 2)</label>
                         <div style="width: 120px;"><button class="btn-lim-mute" id="lim-mute-r">LIMIT MUTE</button></div>
                     </div>
+
+                    <div class="vu-meter-rack" style="margin-bottom: 12px; padding: 6px; background: #060402; border: 1px solid #36220b;">
+                        <div class="vu-top-info" style="font-size: 0.65rem; color: var(--led-orange); margin-bottom: 4px;">
+                            <span>LIMITER GR METER</span>
+                            <span id="gr-txt-r" style="font-weight: bold;">0.0 dB</span>
+                        </div>
+                        <div class="vu-bar" id="vu-gr-r" style="height: 8px; flex-direction: row-reverse; gap: 3px;"></div>
+                    </div>
+
                     <div class="control-row"><label>Threshold</label><input type="range" id="lim-thold-r" min="-20" max="0" step="0.5" value="-3.0"><span class="val-disp" id="lim-thold-disp-r">-3.0 dB</span></div>
                     <div class="control-row"><label>Attack</label><input type="range" id="lim-atk-r" min="1" max="100" step="1" value="3"><span class="val-disp" id="lim-atk-disp-r">3 ms</span></div>
                     <div class="control-row"><label>Release</label><input type="range" id="lim-rel-r" min="60" max="1000" step="10" value="60"><span class="val-disp" id="lim-rel-disp-r">60 ms</span></div>
@@ -332,10 +422,10 @@
 
             <div class="eq-container">
                 <div class="eq-header-block">
-                    <div class="eq-title">15-Band High-Freq EQ Matrix</div>
+                    <div class="eq-title">15-Band High-Freq GEQ Matrix R</div>
                     <div style="display: flex; gap: 5px;">
-                        <button class="btn-byp" id="reset-eq-r" style="font-size: 0.75rem; padding: 4px 8px;">RESET EQ</button>
-                        <button class="btn-mute" id="mute-eq-r">BYPASS EQ</button>
+                        <button class="btn-byp" id="reset-eq-r" style="font-size: 0.75rem; padding: 4px 8px;">RESET GEQ</button>
+                        <button class="btn-mute" id="mute-eq-r">BYPASS GEQ</button>
                     </div>
                 </div>
                 <div class="eq-wrapper">
@@ -348,7 +438,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyA7Rzfvjrw-OZe7Qh7W9nxkr1EUq6vnqDM",
@@ -364,33 +454,13 @@
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
 
-    window.fbDatabase = database;
-    window.fbRef = ref;
-    window.fbGet = get;
-    window.fbSet = set;
-
-    const localSavedKey = localStorage.getItem('aji_audio_saved_key');
-    if (localSavedKey) {
-        document.getElementById('input-license-key').value = localSavedKey;
-        setTimeout(() => {
-            if (typeof window.checkLicenseOnline === "function") {
-                window.checkLicenseOnline(localSavedKey);
-            }
-        }, 500);
-    }
-
-    document.getElementById('btn-activate-license').addEventListener('click', () => {
-        const k = document.getElementById('input-license-key').value.trim();
-        if(k) { if(window.checkLicenseOnline) window.checkLicenseOnline(k); } else { alert("Masukkan key terlebih dahulu!"); }
-    });
-</script>
-
-<script>
     let isProUser = false; 
     let countdownInterval = null; 
 
+    // Frekuensi GEQ L (Sub/Low) dan R (Mid/High)
     const eqFreqsL = [20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500];
     const eqFreqsR = [630, 800, '1k', '1.25k', '1.6k', '2k', '2.5k', '3.15k', '4k', '5k', '6.3k', '8k', '10k', '12.5k', '16k'];
+    
     let currentMode = "off";
 
     const muteState = {
@@ -400,6 +470,7 @@
 
     let audioCtx = null, audioSource = null, masterGainNode = null, nodeL = null, nodeR = null;
     let internalGenNode = null; 
+    let globalRenderReqId = null;
 
     const calculateGain = (db) => Math.pow(10, db / 20);
 
@@ -415,61 +486,101 @@
 
     async function dapatkanWaktuOnlineAkurat() {
         try {
-            const respon = await fetch('https://worldtimeapi.org/api/timezone/Asia/Jakarta');
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 6000);
+            const respon = await fetch('https://worldtimeapi.org/api/timezone/Asia/Jakarta', { signal: controller.signal });
+            clearTimeout(timeoutId);
             if (respon.ok) {
                 const data = await respon.json();
                 return new Date(data.datetime);
             }
-        } catch (e) {
-            console.warn("Gagal mengambil waktu online, menggunakan fallback sistem lokal.");
+        } catch (e) { 
+            console.warn("Gagal mengambil waktu online, fallback ke waktu PC lokal."); 
         }
         return new Date();
+    }
+
+    function parseRelativeTime(str, baseDate) {
+        if (!str) return null;
+        const cleanStr = String(str).toLowerCase().replace(/\s+/g, '');
+        const match = cleanStr.match(/^(\d+)(detik|menit|jam|hari|minggu|bulan|tahun)$/);
+        
+        if (match) {
+            const val = parseInt(match[1]);
+            const unit = match[2];
+            const d = new Date(baseDate.getTime());
+            
+            if (unit === 'detik') d.setSeconds(d.getSeconds() + val);
+            else if (unit === 'menit') d.setMinutes(d.getMinutes() + val);
+            else if (unit === 'jam') d.setHours(d.getHours() + val);
+            else if (unit === 'hari') d.setDate(d.getDate() + val);
+            else if (unit === 'minggu') d.setDate(d.getDate() + (val * 7));
+            else if (unit === 'bulan') d.setMonth(d.getMonth() + val);
+            else if (unit === 'tahun') d.setFullYear(d.getFullYear() + val);
+            
+            return d;
+        }
+        return null;
     }
 
     function triggerActivationNotice() {
         alert("🔒 PRO VERSION EXCLUSIVE\n\nFitur ini terkunci. Hubungi AD AUDIO PRODUCTION / AJI LUMAJANG untuk membeli lisensi penuh Pro Engine.");
     }
+    
+    document.querySelectorAll('.trigger-activation').forEach(el => {
+        el.addEventListener('click', triggerActivationNotice);
+    });
 
     function applyVisualLocks() {
+        const lockSelectMenu = (selectId) => {
+            const selectEl = document.getElementById(selectId);
+            if (!selectEl) return;
+            
+            Array.from(selectEl.options).forEach(opt => {
+                if (opt.value !== "lr12" && opt.value !== "bw12") {
+                    opt.disabled = !isProUser;
+                }
+            });
+
+            if (!isProUser && selectEl.value !== "lr12" && selectEl.value !== "bw12") {
+                selectEl.value = "lr12"; 
+            }
+        };
+
         if (!isProUser) {
             document.getElementById('panel-generator-group').classList.add('locked-feature');
             document.getElementById('panel-limiter-l').classList.add('locked-feature');
             document.getElementById('panel-limiter-r').classList.add('locked-feature');
             document.querySelectorAll('.lock-badge').forEach(b => b.style.display = 'block');
             
-            document.getElementById('slope-l').value = "lr12";
-            document.getElementById('slope-r').value = "lr12";
-            
-            ['l', 'r'].forEach(ch => {
-                for(let i = 5; i < 15; i++) {
-                    const sliderNode = document.getElementById(`eq-${ch}-${i}`);
-                    if(sliderNode && sliderNode.parentElement) {
-                        sliderNode.parentElement.classList.add('locked-feature');
-                        const labelNode = sliderNode.parentElement.querySelector('.eq-freq-lbl');
-                        if(labelNode && !labelNode.innerText.includes('🔒')) labelNode.innerText += '🔒';
-                    }
-                }
-            });
+            lockSelectMenu('slope-l');
+            lockSelectMenu('slope-r');
         } else {
             document.getElementById('panel-generator-group').classList.remove('locked-feature');
             document.getElementById('panel-limiter-l').classList.remove('locked-feature');
             document.getElementById('panel-limiter-r').classList.remove('locked-feature');
             document.querySelectorAll('.lock-badge').forEach(b => b.style.display = 'none');
             
-            document.getElementById('slope-l').value = "lr24";
-            document.getElementById('slope-r').value = "lr24";
-            
-            ['l', 'r'].forEach(ch => {
-                for(let i = 5; i < 15; i++) {
-                    const sliderNode = document.getElementById(`eq-${ch}-${i}`);
-                    if(sliderNode && sliderNode.parentElement) {
+            lockSelectMenu('slope-l');
+            lockSelectMenu('slope-r');
+        }
+
+        ['l', 'r'].forEach(ch => {
+            for(let i = 5; i < 15; i++) {
+                const sliderNode = document.getElementById(`eq-${ch}-${i}`);
+                if(sliderNode && sliderNode.parentElement) {
+                    if(!isProUser) {
+                        sliderNode.parentElement.classList.add('locked-feature');
+                        const labelNode = sliderNode.parentElement.querySelector('.eq-freq-lbl');
+                        if(labelNode && !labelNode.innerText.includes('🔒')) labelNode.innerText += '🔒';
+                    } else {
                         sliderNode.parentElement.classList.remove('locked-feature');
                         const labelNode = sliderNode.parentElement.querySelector('.eq-freq-lbl');
                         if(labelNode) labelNode.innerText = labelNode.innerText.replace('🔒', '');
                     }
                 }
-            });
-        }
+            }
+        });
         
         if (audioCtx && nodeL && nodeR) {
             let hpfL = parseInt(document.getElementById('hpf-l').value);
@@ -483,32 +594,67 @@
     }
 
     function buildInterfaceAwal() {
-        ['l', 'r'].forEach(ch => {
-            const vuBar = document.getElementById(`vu-${ch}`);
-            vuBar.innerHTML = ''; 
-            for(let i=0; i<30; i++) {
-                const led = document.createElement('div');
-                led.classList.add('led');
-                if(i < 18) led.classList.add('green');
-                else if(i < 25) led.classList.add('yellow');
-                else led.classList.add('red');
-                vuBar.appendChild(led);
-            }
+        const vuBarL = document.getElementById('vu-l');
+        vuBarL.innerHTML = ''; 
+        for(let i=0; i<30; i++) {
+            const led = document.createElement('div'); led.classList.add('led');
+            if(i < 18) led.classList.add('green'); else if(i < 25) led.classList.add('yellow'); else led.classList.add('red');
+            vuBarL.appendChild(led);
+        }
 
-            const eqContainer = document.getElementById(`eq-sliders-${ch}`);
-            eqContainer.innerHTML = '';
-            const freqs = ch === 'l' ? eqFreqsL : eqFreqsR;
-            freqs.forEach((freq, idx) => {
-                const div = document.createElement('div');
-                div.classList.add('eq-ch');
-                div.innerHTML = `
-                    <span id="eq-val-${ch}-${idx}" class="eq-rt-val">0dB</span>
-                    <input type="range" id="eq-${ch}-${idx}" data-ch="${ch}" data-idx="${idx}" min="-12" max="12" step="0.5" value="0">
-                    <span class="eq-freq-lbl">${freq}</span>
-                `;
-                eqContainer.appendChild(div);
-            });
+        const eqContainerL = document.getElementById('eq-sliders-l');
+        eqContainerL.innerHTML = '';
+        eqFreqsL.forEach((freq, idx) => {
+            const div = document.createElement('div');
+            div.classList.add('eq-ch');
+            div.innerHTML = `
+                <span id="eq-val-l-${idx}" class="eq-rt-val">0dB</span>
+                <input type="range" id="eq-l-${idx}" data-ch="l" data-idx="${idx}" min="-12" max="12" step="0.5" value="0">
+                <span class="eq-freq-lbl">${freq}</span>
+            `;
+            eqContainerL.appendChild(div);
         });
+
+        const vuBarR = document.getElementById('vu-r');
+        vuBarR.innerHTML = ''; 
+        for(let i=0; i<30; i++) {
+            const led = document.createElement('div'); led.classList.add('led');
+            if(i < 18) led.classList.add('green'); else if(i < 25) led.classList.add('yellow'); else led.classList.add('red');
+            vuBarR.appendChild(led);
+        }
+
+        const eqContainerR = document.getElementById('eq-sliders-r');
+        eqContainerR.innerHTML = '';
+        eqFreqsR.forEach((freq, idx) => {
+            const div = document.createElement('div');
+            div.classList.add('eq-ch');
+            div.innerHTML = `
+                <span id="eq-val-r-${idx}" class="eq-rt-val">0dB</span>
+                <input type="range" id="eq-r-${idx}" data-ch="r" data-idx="${idx}" min="-12" max="12" step="0.5" value="0">
+                <span class="eq-freq-lbl">${freq}</span>
+            `;
+            eqContainerR.appendChild(div);
+        });
+
+        const vuGrL = document.getElementById('vu-gr-l');
+        if(vuGrL) {
+            vuGrL.innerHTML = '';
+            for(let i=0; i<15; i++) {
+                const led = document.createElement('div'); 
+                led.classList.add('led', 'red'); 
+                vuGrL.appendChild(led);
+            }
+        }
+        const vuGrR = document.getElementById('vu-gr-r');
+        if(vuGrR) {
+            vuGrR.innerHTML = '';
+            for(let i=0; i<15; i++) {
+                const led = document.createElement('div'); 
+                led.classList.add('led', 'red'); 
+                vuGrR.appendChild(led);
+            }
+        }
+
         applyVisualLocks();
         perbaruiDaftarPresetLokal(); 
     }
@@ -516,270 +662,198 @@
     function mulaiHitungMundur(expiredDateStr) {
         if (countdownInterval) clearInterval(countdownInterval);
         const countdownDisp = document.getElementById('license-countdown-disp');
-        const targetDate = new Date(expiredDateStr.replace(' ', 'T')).getTime();
+        
+        countdownDisp.classList.remove('expired-glow');
+        countdownDisp.classList.add('active-glow');
+        
+        const targetDateObj = new Date(expiredDateStr);
+        if (isNaN(targetDateObj.getTime())) {
+            countdownDisp.innerHTML = "❌ FORMAT TANGGAL ERROR";
+            countdownDisp.classList.remove('active-glow');
+            countdownDisp.classList.add('expired-glow');
+            return;
+        }
+        
+        const targetDate = targetDateObj.getTime();
 
-        countdownInterval = setInterval(() => {
-            const sekarang = new Date().getTime();
-            const selisih = targetDate - sekarang;
-
+        countdownInterval = setInterval(async () => {
+            const sekarang = new Date().getTime(); const selisih = targetDate - sekarang;
+            
             if (selisih <= 0) {
-                clearInterval(countdownInterval);
-                isProUser = false;
+                clearInterval(countdownInterval); isProUser = false;
                 countdownDisp.innerHTML = "❌ MASA AKTIF HABIS! SILAKAN UPGRADE";
-                countdownDisp.style.color = "var(--led-red)";
-                applyVisualLocks();
+                
+                countdownDisp.classList.remove('active-glow');
+                countdownDisp.classList.add('expired-glow');
+                applyVisualLocks(); 
+                
+                const savedKey = localStorage.getItem('aji_audio_saved_key');
+                if (savedKey) {
+                    const keyRef = ref(database, 'activation_keys/' + savedKey);
+                    update(keyRef, { status: "expired" }).catch(() => console.warn("Gagal update status kedaluwarsa ke database"));
+                }
                 return;
             }
-
+            
             const hari = Math.floor(selisih / (1000 * 60 * 60 * 24));
             const jam = Math.floor((selisih % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const menit = Math.floor((selisih % (1000 * 60 * 60)) / (1000 * 60));
             const detik = Math.floor((selisih % (1000 * 60)) / 1000);
-
-            countdownDisp.innerHTML = `⏳ SISA PRO ENGINE: ${hari}H ${jam}J ${menit}M ${detik}D lagi`;
-            countdownDisp.style.color = "var(--accent-green)";
+            
+            countdownDisp.innerHTML = `⏳ SISA PRO: ${hari}H ${jam}J ${menit}M ${detik}D`;
         }, 1000);
     }
 
     async function checkLicenseOnline(key) {
         if(!key) return;
-        if(!window.fbDatabase) return;
-
-        const countdownDisp = document.getElementById('license-countdown-disp');
-        countdownDisp.innerHTML = "🔄 MEMVALIDASI LISENSI ONLINE...";
-        countdownDisp.style.color = "var(--led-orange)";
-
         try {
-            const cmdPattern = /^(\d+)\s*(menit|jam|hari|bulan|tahun|minute|hour|day|month|year|sec|detik)/i;
-            const kLower = key.toLowerCase();
+            const keyRef = ref(database, 'activation_keys/' + key);
+            const snapshot = await get(keyRef);
             
-            const isTextCommand = kLower.includes("menit") || kLower.includes("jam") || 
-                                  kLower.includes("hari") || kLower.includes("bulan") || 
-                                  kLower.includes("tahun") || kLower.includes("minute") || 
-                                  kLower.includes("hour") || kLower.includes("day") || 
-                                  kLower.includes("month") || kLower.includes("year");
+            if (snapshot.exists()) {
+                const data = snapshot.val(); 
+                let expiredDateStr = String(data.expired_date || "").trim();
 
-            const savedKeyForCmd = localStorage.getItem('aji_audio_saved_key');
-            const activeKey = isTextCommand ? savedKeyForCmd : key;
-            
-            if (!activeKey) {
-                alert("❌ Silakan hubungkan device dengan lisensi valid terlebih dahulu sebelum merubah durasi!");
-                countdownDisp.innerHTML = "MODE: FREE AUDIO ENGINE";
-                countdownDisp.style.color = "var(--text-color)";
-                return;
-            }
-
-            const keyRef = window.fbRef(window.fbDatabase, 'activation_keys/' + activeKey);
-            const snapshot = await window.fbGet(keyRef);
-
-            if (!snapshot.exists()) {
-                isProUser = false;
-                if (countdownInterval) clearInterval(countdownInterval);
-                countdownDisp.innerHTML = "❌ LISENSI TIDAK VALID!";
-                countdownDisp.style.color = "var(--led-red)";
-                applyVisualLocks();
-                perbaruiDaftarPresetLokal();
-                return;
-            }
-
-            let dataUtuh = snapshot.val();
-
-            // SINKRONISASI MENGALAH PADA RULES (Kirim status expired agar lolos bypass)
-            if (isTextCommand) {
-                const match = key.match(cmdPattern);
-                if (match) {
-                    const nilai = parseInt(match[1]);
-                    const satuan = match[2] ? match[2].toLowerCase() : "hari";
-                    let waktuTarget = await dapatkanWaktuOnlineAkurat();
-                    
-                    if (satuan === "tahun" || satuan === "year") waktuTarget.setFullYear(waktuTarget.getFullYear() + nilai);
-                    else if (satuan === "bulan" || satuan === "month") waktuTarget.setMonth(waktuTarget.getMonth() + nilai);
-                    else if (satuan === "hari" || satuan === "day") waktuTarget.setDate(waktuTarget.getDate() + nilai);
-                    else if (satuan === "jam" || satuan === "hour") waktuTarget.setHours(waktuTarget.getHours() + nilai);
-                    else if (satuan === "menit" || satuan === "minute") waktuTarget.setMinutes(waktuTarget.getMinutes() + nilai);
-                    
-                    const offset = waktuTarget.getTimezoneOffset() * 60000;
-                    const localISOTime = (new Date(waktuTarget - offset)).toISOString().slice(0, 19).replace('T', ' ');
-                    const epochTimestamp = waktuTarget.getTime(); 
-                    
-                    countdownDisp.innerHTML = "🔄 SINKRONISASI CO-RULES FIREBASE...";
-                    
-                    dataUtuh.expired_date = localISOTime;
-                    dataUtuh.expired_timestamp = epochTimestamp; 
-                    dataUtuh.status = "expired"; // Trik mengalah: rules menuntut text status 'expired' agar write sukses!
-                    dataUtuh.device_id = ID_PERANGKAT_SEKARANG;
-                    
-                    await window.fbSet(keyRef, dataUtuh);
-                    alert(`✨ BERHASIL MERUBAH DURASI LISENSI!\nMasa aktif baru diset tambah: ${nilai} ${satuan}.\nExpired Date: ${localISOTime}`);
-                    
-                    checkLicenseOnline(activeKey);
-                    return;
+                if (data.status === "banned" || data.status === "expired") { 
+                    alert("Lisensi ini telah diblokir atau sudah kadaluarsa!");
+                    isProUser = false; applyVisualLocks(); return; 
                 }
-            }
+                
+                if (data.device_id) {
+                    if (data.device_id !== ID_PERANGKAT_SEKARANG) { 
+                        alert("Lisensi ini sudah digunakan pada perangkat lain!");
+                        isProUser = false; applyVisualLocks(); return; 
+                    }
+                } else {
+                    try { 
+                        await update(keyRef, { device_id: ID_PERANGKAT_SEKARANG }); 
+                    } catch(e) { console.warn("Peringatan: Gagal mengunci Device ID ke Firebase."); }
+                }
 
-            if (dataUtuh.status === "banned" || dataUtuh.status === "blacklist") {
-                isProUser = false;
-                if (countdownInterval) clearInterval(countdownInterval);
-                countdownDisp.innerHTML = "❌ LISENSI DIBLOKIR / BANNED!";
-                countdownDisp.style.color = "var(--led-red)";
-                alert("❌ LISENSI DIBLOKIR!\nKey ini telah dimasukkan ke dalam daftar hitam.");
-                applyVisualLocks();
-                perbaruiDaftarPresetLokal();
-                return;
-            }
+                if (!expiredDateStr || expiredDateStr === "undefined") {
+                    alert("Data kadaluarsa lisensi tidak ditemukan di server.");
+                    isProUser = false; applyVisualLocks(); return;
+                }
+                
+                const hariIni = await dapatkanWaktuOnlineAkurat();
+                let expiredDate;
 
-            if (dataUtuh.device_id && dataUtuh.device_id !== "" && dataUtuh.device_id !== ID_PERANGKAT_SEKARANG) {
-                isProUser = false;
-                if (countdownInterval) clearInterval(countdownInterval);
-                countdownDisp.innerHTML = "❌ KUNCI TERPAKAI DI HP/LAPTOP LAIN!";
-                countdownDisp.style.color = "var(--led-red)";
-                alert("❌ AKSES DITOLAK!\nLisensi ini sudah terikat otomatis pada perangkat pelanggan lain.");
-                applyVisualLocks();
-                perbaruiDaftarPresetLokal();
-                return;
-            }
+                const parsedRelative = parseRelativeTime(expiredDateStr, hariIni);
+                
+                if (parsedRelative) {
+                    expiredDate = parsedRelative;
+                    expiredDateStr = parsedRelative.toISOString(); 
+                    
+                    try { 
+                        await update(keyRef, { expired_date: expiredDateStr }); 
+                    } catch(e) { console.warn("Peringatan: Gagal mengubah string format waktu di Firebase."); }
+                } else {
+                    expiredDate = new Date(expiredDateStr);
+                    if (isNaN(expiredDate.getTime())) {
+                        alert("Format tanggal kadaluarsa tidak dikenali.");
+                        isProUser = false; applyVisualLocks(); return;
+                    }
+                }
 
-            if (!dataUtuh.device_id || dataUtuh.device_id === "") {
-                dataUtuh.device_id = ID_PERANGKAT_SEKARANG;
-                await window.fbSet(keyRef, dataUtuh);
-                alert("📱 LINKING DEVICE SUCCESS!\nLisensi aman dan telah berhasil dikunci ke perangkat ini.");
-            }
-
-            let expiredDateStr = dataUtuh.expired_date;
-            const hariIni = await dapatkanWaktuOnlineAkurat();
-            let isExpired = false;
-
-            // Logika validasi HTML mengalah: Murni membaca durasi timestamp angka, mengabaikan teks status expired
-            if (dataUtuh.expired_timestamp) {
-                isExpired = hariIni.getTime() > dataUtuh.expired_timestamp;
+                if (hariIni.getTime() > expiredDate.getTime()) { 
+                    alert("Masa aktif lisensi Anda telah habis!");
+                    isProUser = false; applyVisualLocks(); 
+                    
+                    const countdownDisp = document.getElementById('license-countdown-disp');
+                    countdownDisp.innerHTML = "❌ MASA AKTIF HABIS! SILAKAN UPGRADE";
+                    countdownDisp.classList.remove('active-glow');
+                    countdownDisp.classList.add('expired-glow');
+                    
+                    update(keyRef, { status: "expired" }).catch(() => console.warn("Gagal menandai lisensi expired di DB."));
+                } else {
+                    isProUser = true; 
+                    localStorage.setItem('aji_audio_saved_key', key);
+                    applyVisualLocks(); 
+                    mulaiHitungMundur(expiredDateStr);
+                    
+                    alert("🚀 Aktivasi PRO Berhasil! Fitur Horeg Engine terbuka penuh.");
+                    if(audioCtx && nodeL && nodeR) { syncAllHardwareSlidersToDSP(); }
+                }
             } else {
-                const expiredDate = new Date(expiredDateStr.replace(' ', 'T'));
-                isExpired = hariIni > expiredDate || isNaN(expiredDate.getTime());
+                alert("Lisensi tidak valid atau tidak ditemukan di database!");
             }
-
-            if (isExpired) {
-                isProUser = false;
-                if (countdownInterval) clearInterval(countdownInterval);
-                countdownDisp.innerHTML = "❌ LISENSI EXPIRED! KEMBALI KE MODE FREE";
-                countdownDisp.style.color = "var(--led-red)";
-                applyVisualLocks();
-                perbaruiDaftarPresetLokal();
-            } else {
-                // PRO TETAP AKTIF KARENA DURASI MASIH ADA, TIDAK PEDULI DATA DI DATABASE BERTULISKAN "expired"
-                isProUser = true;
-                localStorage.setItem('aji_audio_saved_key', activeKey);
-                applyVisualLocks(); 
-                perbaruiDaftarPresetLokal();
-                mulaiHitungMundur(expiredDateStr); 
-                if(audioCtx && nodeL && nodeR) { syncAllHardwareSlidersToDSP(); }
-            }
-        } catch (error) {
-            console.error(error);
-            alert("⚠️ Kesalahan Jaringan atau Firebase Error.");
+        } catch (error) { 
+            console.error("Firebase Auth Error:", error);
+            alert("Gagal terhubung ke server verifikasi.");
         }
     }
-
-    window.checkLicenseOnline = checkLicenseOnline;
 
     const audioPlayer = document.getElementById('audio-player');
 
     class DLMSChannelEngine {
         constructor(context, type) {
-            this.ctx = context;
-            this.type = type;
-            this.gainNode = this.ctx.createGain();
-            this.phaseNode = this.ctx.createGain();
+            this.ctx = context; this.type = type;
+            this.gainNode = this.ctx.createGain(); this.phaseNode = this.ctx.createGain();
             this.currentGainVal = 1.0; 
 
-            this.delayNode = null;
-            this.echoDelayNode = null;
-            this.echoFeedbackNode = null;
-            this.echoDryNode = null;
-            this.echoWetNode = null;
+            this.delayNode = null; this.echoDelayNode = null; this.echoFeedbackNode = null; this.echoDryNode = null; this.echoWetNode = null;
+            this.modeFilter = this.ctx.createBiquadFilter(); this.modeFilter.type = "peaking"; 
 
-            this.modeFilter = this.ctx.createBiquadFilter();
-            this.modeFilter.type = "allpass"; 
-
-            this.hpf1 = this.ctx.createBiquadFilter(); this.hpf1.type = 'highpass';
-            this.hpf2 = this.ctx.createBiquadFilter(); this.hpf2.type = 'highpass';
-            this.lpf1 = this.ctx.createBiquadFilter(); this.lpf1.type = 'lowpass';
-            this.lpf2 = this.ctx.createBiquadFilter(); this.lpf2.type = 'lowpass';
+            this.hpf1 = this.ctx.createBiquadFilter(); this.hpf1.type = 'allpass';
+            this.hpf2 = this.ctx.createBiquadFilter(); this.hpf2.type = 'allpass';
+            this.hpf3 = this.ctx.createBiquadFilter(); this.hpf3.type = 'allpass';
+            this.hpf4 = this.ctx.createBiquadFilter(); this.hpf4.type = 'allpass';
+            
+            this.lpf1 = this.ctx.createBiquadFilter(); this.lpf1.type = 'allpass';
+            this.lpf2 = this.ctx.createBiquadFilter(); this.lpf2.type = 'allpass';
+            this.lpf3 = this.ctx.createBiquadFilter(); this.lpf3.type = 'allpass';
+            this.lpf4 = this.ctx.createBiquadFilter(); this.lpf4.type = 'allpass';
 
             this.gainNode.connect(this.phaseNode);
 
             if (this.type === 'R') {
-                this.delayNode = this.ctx.createDelay(1.0);
-                this.delayNode.delayTime.value = 0.0;
-
-                this.echoDelayNode = this.ctx.createDelay(1.0);
-                this.echoDelayNode.delayTime.value = 0.280; 
-                this.echoFeedbackNode = this.ctx.createGain();
-                this.echoFeedbackNode.gain.value = 0.40; 
-                
-                this.echoDryNode = this.ctx.createGain();
-                this.echoWetNode = this.ctx.createGain();
-                this.echoDryNode.gain.value = 1.0;
-                this.echoWetNode.gain.value = 0.0;
+                this.delayNode = this.ctx.createDelay(1.0); this.delayNode.delayTime.value = 0.0;
+                this.echoDelayNode = this.ctx.createDelay(1.0); this.echoDelayNode.delayTime.value = 0.280; 
+                this.echoFeedbackNode = this.ctx.createGain(); this.echoFeedbackNode.gain.value = 0.40; 
+                this.echoDryNode = this.ctx.createGain(); this.echoWetNode = this.ctx.createGain();
+                this.echoDryNode.gain.value = 1.0; this.echoWetNode.gain.value = 0.0;
 
                 this.phaseNode.connect(this.delayNode);
-                this.delayNode.connect(this.echoDryNode);
-                this.delayNode.connect(this.echoDelayNode);
-                
-                this.echoDelayNode.connect(this.echoFeedbackNode);
-                this.echoFeedbackNode.connect(this.echoDelayNode); 
+                this.delayNode.connect(this.echoDryNode); this.delayNode.connect(this.echoDelayNode);
+                this.echoDelayNode.connect(this.echoFeedbackNode); this.echoFeedbackNode.connect(this.echoDelayNode); 
                 this.echoDelayNode.connect(this.echoWetNode);
-
-                this.echoDryNode.connect(this.modeFilter);
-                this.echoWetNode.connect(this.modeFilter);
+                this.echoDryNode.connect(this.modeFilter); this.echoWetNode.connect(this.modeFilter);
             } else {
                 this.phaseNode.connect(this.modeFilter);
             }
 
-            this.modeFilter.connect(this.hpf1);
-            this.hpf1.connect(this.hpf2);
-            this.hpf2.connect(this.lpf1);
-            this.lpf1.connect(this.lpf2);
+            this.modeFilter.connect(this.hpf1); this.hpf1.connect(this.hpf2);
+            this.hpf2.connect(this.hpf3); this.hpf3.connect(this.hpf4);
+            this.hpf4.connect(this.lpf1); this.lpf1.connect(this.lpf2);
+            this.lpf2.connect(this.lpf3); this.lpf3.connect(this.lpf4);
 
             this.eqFilters = [];
-            const freqs = type === 'L' ? eqFreqsL : eqFreqsR;
-            let lastNode = this.lpf2; 
+            let lastNode = this.lpf4; 
 
-            freqs.forEach((f) => {
+            const targetFreqs = this.type === 'L' ? eqFreqsL : eqFreqsR;
+            
+            targetFreqs.forEach((f) => {
                 let actualFreq = (typeof f === 'string' && f.includes('k')) ? parseFloat(f) * 1000 : parseFloat(f);
-                const eq = this.ctx.createBiquadFilter();
-                eq.type = 'peaking';
-                eq.frequency.value = actualFreq;
-                eq.Q.value = 1.8; 
-                eq.gain.value = 0;
-                this.eqFilters.push(eq);
-                lastNode.connect(eq);
-                lastNode = eq;
+                const eq = this.ctx.createBiquadFilter(); eq.type = 'peaking'; eq.frequency.value = actualFreq; eq.Q.value = 1.8; eq.gain.value = 0;
+                this.eqFilters.push(eq); lastNode.connect(eq); lastNode = eq;
             });
 
-            this.limiter = this.ctx.createDynamicsCompressor();
-            this.limiter.knee.value = 0; 
+            this.limiter = this.ctx.createDynamicsCompressor(); this.limiter.knee.value = 0; 
+            this.analyser = this.ctx.createAnalyser(); this.analyser.fftSize = 64;
 
-            this.analyser = this.ctx.createAnalyser();
-            this.analyser.fftSize = 64;
-
-            lastNode.connect(this.analyser);
-            this.analyser.connect(this.limiter);
+            lastNode.connect(this.analyser); this.analyser.connect(this.limiter);
         }
 
         applyDspMode(mode) {
             if (!this.ctx) return;
             let t = this.ctx.currentTime;
             if (mode === "lowcut") {
-                this.modeFilter.type = "highpass";
-                this.modeFilter.frequency.setTargetAtTime(40, t, 0.02);
-                this.modeFilter.Q.setTargetAtTime(0.707, t, 0.02);
+                this.modeFilter.type = "highpass"; this.modeFilter.frequency.setTargetAtTime(40, t, 0.02); this.modeFilter.Q.setTargetAtTime(0.707, t, 0.02);
             } else if (mode === "superbass") {
-                this.modeFilter.type = "peaking";
-                this.modeFilter.frequency.setTargetAtTime(60, t, 0.02);
-                this.modeFilter.Q.setTargetAtTime(2.0, t, 0.02);
-                this.modeFilter.gain.setTargetAtTime(6, t, 0.02); 
+                this.modeFilter.type = "peaking"; this.modeFilter.frequency.setTargetAtTime(60, t, 0.02); this.modeFilter.Q.setTargetAtTime(2.0, t, 0.02); this.modeFilter.gain.setTargetAtTime(6, t, 0.02); 
             } else {
-                this.modeFilter.type = "allpass";
+                this.modeFilter.type = "peaking";
+                this.modeFilter.frequency.setTargetAtTime(1000, t, 0.02);
                 this.modeFilter.gain.setTargetAtTime(0, t, 0.02); 
                 this.modeFilter.Q.setTargetAtTime(1.0, t, 0.02); 
             }
@@ -788,99 +862,72 @@
         updateCrossover(hpfVal, lpfVal, slopeType) {
             if (!this.ctx || !muteState) return; 
             const chKey = this.type.toLowerCase();
-            if (!muteState[chKey]) return;
-
             let t = this.ctx.currentTime;
-            
             let isHpfDeactivated = muteState[chKey].hpfByp || muteState[chKey].hpfMute;
             let isLpfDeactivated = muteState[chKey].lpfByp || muteState[chKey].lpfMute;
 
-            if (isHpfDeactivated) {
-                this.hpf1.type = "allpass"; this.hpf2.type = "allpass";
-            } else {
-                this.hpf1.type = "highpass";
-                this.hpf2.type = "highpass";
-                this.hpf1.frequency.setTargetAtTime(hpfVal, t, 0.02);
-                this.hpf2.frequency.setTargetAtTime(hpfVal, t, 0.02);
-            }
+            [this.hpf1, this.hpf2, this.hpf3, this.hpf4, this.lpf1, this.lpf2, this.lpf3, this.lpf4].forEach(f => f.type = 'allpass');
 
-            if (isLpfDeactivated) {
-                this.lpf1.type = "allpass"; this.lpf2.type = "allpass";
-            } else {
-                this.lpf1.type = "lowpass";
-                this.lpf2.type = "lowpass";
-                this.lpf1.frequency.setTargetAtTime(lpfVal, t, 0.02);
-                this.lpf2.frequency.setTargetAtTime(lpfVal, t, 0.02);
-            }
-
-            if (!isHpfDeactivated || !isLpfDeactivated) {
-                if (slopeType.startsWith("lr")) { 
-                    if (slopeType === "lr12") {
-                        if(!isHpfDeactivated) this.hpf2.type = "allpass"; if(!isLpfDeactivated) this.lpf2.type = "allpass";
-                        this.hpf1.Q.setValueAtTime(0.707, t); this.lpf1.Q.setValueAtTime(0.707, t);
-                    } else if (slopeType === "lr24") {
-                        if(!isHpfDeactivated) this.hpf2.type = "highpass"; if(!isLpfDeactivated) this.lpf2.type = "lowpass";
-                        this.hpf1.Q.setValueAtTime(0.5, t); this.hpf2.Q.setValueAtTime(0.5, t);
-                        this.lpf1.Q.setValueAtTime(0.5, t); this.lpf2.Q.setValueAtTime(0.5, t);
-                    } else if (slopeType === "lr48") {
-                        if(!isHpfDeactivated) this.hpf2.type = "highpass"; if(!isLpfDeactivated) this.lpf2.type = "lowpass";
-                        this.hpf1.Q.setValueAtTime(0.54, t); this.hpf2.Q.setValueAtTime(1.31, t);
-                        this.lpf1.Q.setValueAtTime(0.54, t); this.lpf2.Q.setValueAtTime(1.31, t);
-                    }
-                } else { 
-                    if (slopeType === "bw12") {
-                        if(!isHpfDeactivated) this.hpf2.type = "allpass"; if(!isLpfDeactivated) this.lpf2.type = "allpass";
-                        this.hpf1.Q.setValueAtTime(1.0, t); this.lpf1.Q.setValueAtTime(1.0, t);
-                    } else if (slopeType === "bw24") {
-                        if(!isHpfDeactivated) this.hpf2.type = "highpass"; if(!isLpfDeactivated) this.lpf2.type = "lowpass";
-                        this.hpf1.Q.setValueAtTime(0.707, t); this.hpf2.Q.setValueAtTime(0.707, t);
-                        this.lpf1.Q.setValueAtTime(0.707, t); this.lpf2.Q.setValueAtTime(0.707, t);
-                    } else if (slopeType === "bw48") {
-                        if(!isHpfDeactivated) this.hpf2.type = "highpass"; if(!isLpfDeactivated) this.lpf2.type = "lowpass";
-                        this.hpf1.Q.setValueAtTime(1.0, t); this.hpf2.Q.setValueAtTime(1.0, t);
-                        this.lpf1.Q.setValueAtTime(1.0, t); this.lpf2.Q.setValueAtTime(1.0, t);
-                    }
+            if (!isHpfDeactivated) {
+                this.hpf1.type = 'highpass'; this.hpf1.frequency.setTargetAtTime(hpfVal, t, 0.02);
+                if (slopeType.includes("24") || slopeType.includes("48")) { 
+                    this.hpf2.type = 'highpass'; this.hpf2.frequency.setTargetAtTime(hpfVal, t, 0.02); 
                 }
+                if (slopeType.includes("48")) {
+                    this.hpf3.type = 'highpass'; this.hpf3.frequency.setTargetAtTime(hpfVal, t, 0.02);
+                    this.hpf4.type = 'highpass'; this.hpf4.frequency.setTargetAtTime(hpfVal, t, 0.02);
+                }
+            }
+
+            if (!isLpfDeactivated) {
+                this.lpf1.type = 'lowpass'; this.lpf1.frequency.setTargetAtTime(lpfVal, t, 0.02);
+                if (slopeType.includes("24") || slopeType.includes("48")) { 
+                    this.lpf2.type = 'lowpass'; this.lpf2.frequency.setTargetAtTime(lpfVal, t, 0.02); 
+                }
+                if (slopeType.includes("48")) {
+                    this.lpf3.type = 'lowpass'; this.lpf3.frequency.setTargetAtTime(lpfVal, t, 0.02);
+                    this.lpf4.type = 'lowpass'; this.lpf4.frequency.setTargetAtTime(lpfVal, t, 0.02);
+                }
+            }
+
+            if (slopeType === "lr12" || slopeType === "bw12") {
+                this.hpf1.Q.setValueAtTime(0.707, t); this.lpf1.Q.setValueAtTime(0.707, t);
+            } else if (slopeType === "lr24") {
+                this.hpf1.Q.setValueAtTime(0.707, t); this.hpf2.Q.setValueAtTime(0.707, t);
+                this.lpf1.Q.setValueAtTime(0.707, t); this.lpf2.Q.setValueAtTime(0.707, t);
+            } else if (slopeType === "bw24") {
+                this.hpf1.Q.setValueAtTime(0.541, t); this.hpf2.Q.setValueAtTime(1.306, t);
+                this.lpf1.Q.setValueAtTime(0.541, t); this.lpf2.Q.setValueAtTime(1.306, t);
+            } else if (slopeType === "lr48") {
+                [this.hpf1, this.hpf3, this.lpf1, this.lpf3].forEach(f => f.Q.setValueAtTime(0.541, t));
+                [this.hpf2, this.hpf4, this.lpf2, this.lpf4].forEach(f => f.Q.setValueAtTime(1.306, t));
+            } else if (slopeType === "bw48") {
+                [this.hpf1, this.lpf1].forEach(f => f.Q.setValueAtTime(0.51, t));
+                [this.hpf2, this.lpf2].forEach(f => f.Q.setValueAtTime(0.601, t));
+                [this.hpf3, this.lpf3].forEach(f => f.Q.setValueAtTime(0.9, t));
+                [this.hpf4, this.lpf4].forEach(f => f.Q.setValueAtTime(2.56, t));
             }
         }
 
         updateLimiterHardware() {
             if (!this.ctx) return;
-            const chKey = this.type.toLowerCase();
-            let t = this.ctx.currentTime;
-            
-            if (!isProUser || muteState[chKey].limMute) {
-                this.limiter.threshold.setValueAtTime(0, t);
-                this.limiter.ratio.setValueAtTime(1, t);
-                return;
-            }
-
+            const chKey = this.type.toLowerCase(); let t = this.ctx.currentTime;
+            if (!isProUser || muteState[chKey].limMute) { this.limiter.threshold.setValueAtTime(0, t); this.limiter.ratio.setValueAtTime(1, t); return; }
             let tholdNode = document.getElementById(`lim-thold-${chKey}`);
-            let atkNode = document.getElementById(`lim-atk-${chKey}`);
-            let relNode = document.getElementById(`lim-rel-${chKey}`); 
-            
+            let atkNode = document.getElementById(`lim-atk-${chKey}`); let relNode = document.getElementById(`lim-rel-${chKey}`);
             let tholdVal = tholdNode ? parseFloat(tholdNode.value) : 0;
-            let atkVal = atkNode ? parseFloat(atkNode.value) / 1000 : 0.03; 
-            let relVal = relNode ? parseFloat(relNode.value) / 1000 : 0.1; 
-            if (relVal > 1.0) relVal = 1.0;
-            
+            let atkVal = atkNode ? parseFloat(atkNode.value) / 1000 : 0.03; let relVal = relNode ? parseFloat(relNode.value) / 1000 : 0.1;
             this.limiter.threshold.setTargetAtTime(tholdVal, t, 0.02);
-            this.limiter.attack.setValueAtTime(atkVal, t);
-            this.limiter.release.setValueAtTime(relVal, t);
-            this.limiter.ratio.setValueAtTime(20, t); 
+            this.limiter.attack.setValueAtTime(atkVal, t); this.limiter.release.setValueAtTime(relVal, t); this.limiter.ratio.setValueAtTime(20, t); 
         }
 
         updateEQGains() {
             if (!this.ctx) return;
             const chKey = this.type.toLowerCase();
             this.eqFilters.forEach((eq, idx) => {
-                if (muteState[chKey].eq) {
-                    eq.gain.setTargetAtTime(0, this.ctx.currentTime, 0.02);
-                } else {
-                    if(!isProUser && idx > 4) {
-                        eq.gain.setTargetAtTime(0, this.ctx.currentTime, 0.02);
-                        return;
-                    }
+                if (muteState[chKey].eq) { eq.gain.setTargetAtTime(0, this.ctx.currentTime, 0.02); } 
+                else {
+                    if(!isProUser && idx > 4) { eq.gain.setTargetAtTime(0, this.ctx.currentTime, 0.02); return; }
                     let slider = document.getElementById(`eq-${chKey}-${idx}`);
                     let sliderVal = slider ? parseFloat(slider.value) : 0;
                     eq.gain.setTargetAtTime(sliderVal, this.ctx.currentTime, 0.02);
@@ -890,16 +937,12 @@
 
         setMute(isMuted) {
             if (!this.ctx) return;
-            if (isMuted) {
-                this.gainNode.gain.setTargetAtTime(0, this.ctx.currentTime, 0.02);
-            } else {
-                this.gainNode.gain.setTargetAtTime(this.currentGainVal, this.ctx.currentTime, 0.02);
-            }
+            if (isMuted) this.gainNode.gain.setTargetAtTime(0, this.ctx.currentTime, 0.02);
+            else this.gainNode.gain.setTargetAtTime(this.currentGainVal, this.ctx.currentTime, 0.02);
         }
 
         togglePhase(isInverted) {
-            if (!this.ctx) return;
-            this.phaseNode.gain.setValueAtTime(isInverted ? -1.0 : 1.0, this.ctx.currentTime);
+            if (!this.ctx) return; this.phaseNode.gain.setValueAtTime(isInverted ? -1.0 : 1.0, this.ctx.currentTime);
         }
 
         updateEcho(forceStop = false) {
@@ -910,17 +953,13 @@
                     let wetVol = parseFloat(document.getElementById('echo-wet-r').value) / 100;
                     this.echoFeedbackNode.gain.setTargetAtTime(fback, this.ctx.currentTime, 0.02);
                     this.echoWetNode.gain.setTargetAtTime(wetVol, this.ctx.currentTime, 0.02); 
-                } else {
-                    this.echoFeedbackNode.gain.setValueAtTime(0, this.ctx.currentTime);
-                    this.echoWetNode.gain.setValueAtTime(0, this.ctx.currentTime); 
-                }
+                } else { this.echoFeedbackNode.gain.setValueAtTime(0, this.ctx.currentTime); this.echoWetNode.gain.setValueAtTime(0, this.ctx.currentTime); }
             }
         }
     }
 
     function initSystemAudio() {
         if (audioCtx) return; 
-
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         masterGainNode = audioCtx.createGain();
 
@@ -931,69 +970,46 @@
         nodeR = new DLMSChannelEngine(audioCtx, 'R');
 
         masterGainNode.connect(splitter);
-        
-        const lowSumNode = audioCtx.createGain();
-        lowSumNode.gain.setValueAtTime(0.5, audioCtx.currentTime); 
+        const lowSumNode = audioCtx.createGain(); lowSumNode.gain.setValueAtTime(0.5, audioCtx.currentTime); 
 
-        splitter.connect(lowSumNode, 0); 
-        splitter.connect(lowSumNode, 1); 
+        splitter.connect(lowSumNode, 0); splitter.connect(lowSumNode, 1); 
+        lowSumNode.connect(nodeL.gainNode); splitter.connect(nodeR.gainNode, 1); 
 
-        lowSumNode.connect(nodeL.gainNode);
-        splitter.connect(nodeR.gainNode, 1); 
-
-        nodeL.limiter.connect(merger, 0, 0);
-        nodeR.limiter.connect(merger, 0, 1);
+        nodeL.limiter.connect(merger, 0, 0); nodeR.limiter.connect(merger, 0, 1);
         merger.connect(audioCtx.destination);
 
-        audioSource = audioCtx.createMediaElementSource(audioPlayer); 
-        audioSource.connect(masterGainNode);
+        audioSource = audioCtx.createMediaElementSource(audioPlayer); audioSource.connect(masterGainNode);
 
-        applyCurrentMode();
-        processRealtimeVUMeters();
-        syncAllHardwareSlidersToDSP();
-    }
-
-    function applyCurrentMode() {
-        if (nodeL && nodeR) {
-            nodeL.applyDspMode(currentMode);
-            nodeR.applyDspMode(currentMode === "lowcut" ? "lowcut" : "off");
+        applyCurrentMode(); syncAllHardwareSlidersToDSP();
+        
+        if(!globalRenderReqId) {
+            processRealtimeVUMeters();
         }
     }
 
+    function applyCurrentMode() {
+        if (nodeL && nodeR) { nodeL.applyDspMode(currentMode); nodeR.applyDspMode(currentMode === "lowcut" ? "lowcut" : "off"); }
+    }
+
     function createPinkNoiseNode() {
-        let bufferSize = 4 * audioCtx.sampleRate;
-        let noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-        let output = noiseBuffer.getChannelData(0);
-        let b0, b1, b2, b3, b4, b5, b6;
-        b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
+        let bufferSize = 4 * audioCtx.sampleRate; let noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        let output = noiseBuffer.getChannelData(0); let b0, b1, b2, b3, b4, b5, b6; b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
         for (let i = 0; i < bufferSize; i++) {
             let white = Math.random() * 2 - 1;
             b0 = 0.99886 * b0 + white * 0.0555179; b1 = 0.99332 * b1 + white * 0.0750759; b2 = 0.96900 * b2 + white * 0.1538520; b3 = 0.86650 * b3 + white * 0.3104856; b4 = 0.55000 * b4 + white * 0.5329522; b5 = -0.7616 * b5 - white * 0.0168980;
             output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362; output[i] *= 0.11; b6 = white * 0.115926;
         }
-        let pinkNoiseSource = audioCtx.createBufferSource();
-        pinkNoiseSource.buffer = noiseBuffer; pinkNoiseSource.loop = true;
-        return pinkNoiseSource;
+        let pinkNoiseSource = audioCtx.createBufferSource(); pinkNoiseSource.buffer = noiseBuffer; pinkNoiseSource.loop = true; return pinkNoiseSource;
     }
 
     function updateInternalGenerator() {
-        if (!isProUser) {
-            document.getElementById('gen-type').value = "off";
-            triggerActivationNotice();
-            return;
-        }
-
-        if (!audioCtx) initSystemAudio();
-        if (internalGenNode) { 
-            try { internalGenNode.stop(); } catch(e){} 
-            internalGenNode.disconnect(); 
-            internalGenNode = null; 
-        }
-        
-        const genType = document.getElementById('gen-type').value;
-        const freqRow = document.getElementById('sine-freq-row');
+        if (!isProUser) { document.getElementById('gen-type').value = "off"; triggerActivationNotice(); return; }
+        if (internalGenNode) { try { internalGenNode.stop(); } catch(e){} internalGenNode.disconnect(); internalGenNode = null; }
+        const genType = document.getElementById('gen-type').value; const freqRow = document.getElementById('sine-freq-row');
         if (genType === 'off') { freqRow.style.display = 'none'; return; }
-        audioCtx.resume();
+        
+        if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+        
         if (genType === 'pink') { freqRow.style.display = 'none'; internalGenNode = createPinkNoiseNode(); } 
         else if (genType === 'sine') { freqRow.style.display = 'grid'; let freqVal = parseInt(document.getElementById('gen-sine-freq').value); internalGenNode = audioCtx.createOscillator(); internalGenNode.type = 'sine'; internalGenNode.frequency.setValueAtTime(freqVal, audioCtx.currentTime); }
         internalGenNode.connect(masterGainNode); internalGenNode.start();
@@ -1002,65 +1018,92 @@
     function syncAllHardwareSlidersToDSP() {
         if (!audioCtx || !nodeL || !nodeR) return; 
         let t = audioCtx.currentTime;
-
-        let mg = parseFloat(document.getElementById('master-gain').value);
-        masterGainNode.gain.setTargetAtTime(calculateGain(mg), t, 0.02);
-        
-        let gl = parseFloat(document.getElementById('gain-l').value);
-        nodeL.currentGainVal = calculateGain(gl);
+        let mg = parseFloat(document.getElementById('master-gain').value); masterGainNode.gain.setTargetAtTime(calculateGain(mg), t, 0.02);
+        let gl = parseFloat(document.getElementById('gain-l').value); nodeL.currentGainVal = calculateGain(gl);
         if(!muteState.l.ch) nodeL.gainNode.gain.setTargetAtTime(nodeL.currentGainVal, t, 0.02);
+        nodeL.updateCrossover(parseInt(document.getElementById('hpf-l').value), parseInt(document.getElementById('lpf-l').value), document.getElementById('slope-l').value);
+        nodeL.updateLimiterHardware(); nodeL.updateEQGains();
 
-        let hpfL = parseInt(document.getElementById('hpf-l').value);
-        let lpfL = parseInt(document.getElementById('lpf-l').value);
-        let slopeL = document.getElementById('slope-l').value;
-        nodeL.updateCrossover(hpfL, lpfL, slopeL);
-        nodeL.updateLimiterHardware();
-        nodeL.updateEQGains();
-
-        let gr = parseFloat(document.getElementById('gain-r').value);
-        nodeR.currentGainVal = calculateGain(gr);
+        let gr = parseFloat(document.getElementById('gain-r').value); nodeR.currentGainVal = calculateGain(gr);
         if(!muteState.r.ch) nodeR.gainNode.gain.setTargetAtTime(nodeR.currentGainVal, t, 0.02);
+        if (nodeR.delayNode) nodeR.delayNode.delayTime.setTargetAtTime(parseFloat(document.getElementById('delay-r').value) / 1000, t, 0.02);
+        nodeR.updateCrossover(parseInt(document.getElementById('hpf-r').value), parseInt(document.getElementById('lpf-r').value), document.getElementById('slope-r').value);
+        nodeR.updateEcho(); nodeR.updateLimiterHardware(); nodeR.updateEQGains();
+    }
 
-        let delayR = parseFloat(document.getElementById('delay-r').value);
-        if (nodeR.delayNode) nodeR.delayNode.delayTime.setTargetAtTime(delayR / 1000, t, 0.02);
-        
-        let hpfR = parseInt(document.getElementById('hpf-r').value);
-        let lpfR = parseInt(document.getElementById('lpf-r').value);
-        let slopeR = document.getElementById('slope-r').value;
-        nodeR.updateCrossover(hpfR, lpfR, slopeR);
-        nodeR.updateEcho();
-        nodeR.updateLimiterHardware();
-        nodeR.updateEQGains();
-
-        if (!isProUser && document.getElementById('gen-type').value !== 'off') {
-            document.getElementById('gen-type').value = 'off';
-            if (internalGenNode) { try { internalGenNode.stop(); } catch(e){} internalGenNode.disconnect(); internalGenNode = null; }
-            document.getElementById('sine-freq-row').style.display = 'none';
+    function dapatkanPresetLokalSemua() { 
+        try {
+            const data = localStorage.getItem('ad_audio_dlms_local_presets'); 
+            return data ? JSON.parse(data) : {}; 
+        } catch(e) {
+            console.error("Local preset data corrupt, resetting...", e);
+            return {};
         }
     }
-
-    function dapatkanPresetLokalSemua() {
-        const data = localStorage.getItem('ad_audio_dlms_local_presets');
-        return data ? JSON.parse(data) : {};
-    }
-
-    function simpanPresetLokalSemua(presets) {
-        localStorage.setItem('ad_audio_dlms_local_presets', JSON.stringify(presets));
-    }
+    
+    function simpanPresetLokalSemua(presets) { localStorage.setItem('ad_audio_dlms_local_presets', JSON.stringify(presets)); }
 
     function perbaruiDaftarPresetLokal() {
-        const selectEl = document.getElementById('select-local-preset');
-        if (!selectEl) return;
-        const presets = dapatkanPresetLokalSemua();
-        
-        selectEl.innerHTML = '<option value="">-- Pilih / Muat Preset --</option>';
-        
+        const selectEl = document.getElementById('select-local-preset'); if (!selectEl) return;
+        const presets = dapatkanPresetLokalSemua(); selectEl.innerHTML = '<option value="">-- Pilih / Muat Preset --</option>';
         Object.keys(presets).sort().forEach(nama => {
-            const opt = document.createElement('option');
-            opt.value = nama;
-            opt.innerText = nama;
-            selectEl.appendChild(opt);
+            const opt = document.createElement('option'); opt.value = nama; opt.innerText = nama; selectEl.appendChild(opt);
         });
+    }
+
+    function processRealtimeVUMeters() {
+        if (!audioCtx || audioCtx.state !== 'running') {
+            globalRenderReqId = requestAnimationFrame(processRealtimeVUMeters);
+            return;
+        }
+
+        const renderVU = (analyserNode, limiterNode, barId, textId, grBarId, grTextId) => {
+            let bufferLength = analyserNode.frequencyBinCount;
+            let dataArray = new Uint8Array(bufferLength);
+            analyserNode.getByteTimeDomainData(dataArray);
+
+            let maxVal = 0;
+            for (let i = 0; i < bufferLength; i++) {
+                let v = (dataArray[i] - 128) / 128;
+                if (Math.abs(v) > maxVal) maxVal = Math.abs(v);
+            }
+
+            let db = 20 * Math.log10(maxVal);
+            if (db < -40) db = -40;
+
+            const txtNode = document.getElementById(textId);
+            if (txtNode) {
+                txtNode.innerText = maxVal === 0 ? "-inf dB" : db.toFixed(1) + " dB";
+                if (db >= 0) txtNode.classList.add('clip'); else txtNode.classList.remove('clip');
+            }
+
+            const barContainer = document.getElementById(barId);
+            if (barContainer) {
+                let leds = barContainer.querySelectorAll('.led');
+                let activeLeds = Math.round(((db + 40) / 43) * leds.length);
+                leds.forEach((led, index) => {
+                    if (index < activeLeds) led.classList.add('active'); else led.classList.remove('active');
+                });
+            }
+
+            let gr = limiterNode.reduction;
+            const grTxtNode = document.getElementById(grTextId);
+            if (grTxtNode) grTxtNode.innerText = gr.toFixed(1) + " dB";
+
+            const grBarContainer = document.getElementById(grBarId);
+            if (grBarContainer) {
+                let leds = grBarContainer.querySelectorAll('.led');
+                let activeLeds = Math.round((Math.abs(gr) / 20) * leds.length);
+                leds.forEach((led, index) => {
+                    if (index < activeLeds) led.classList.add('active'); else led.classList.remove('active');
+                });
+            }
+        };
+
+        if(nodeL) renderVU(nodeL.analyser, nodeL.limiter, 'vu-l', 'db-txt-l', 'vu-gr-l', 'gr-txt-l');
+        if(nodeR) renderVU(nodeR.analyser, nodeR.limiter, 'vu-r', 'db-txt-r', 'vu-gr-r', 'gr-txt-r');
+
+        globalRenderReqId = requestAnimationFrame(processRealtimeVUMeters);
     }
 
     function connectUIElements() {
@@ -1083,372 +1126,214 @@
         });
 
         const setupBiDirectionalFilter = (sliderId, inputId, updateFunc) => {
-            const slider = document.getElementById(sliderId);
-            const input = document.getElementById(inputId);
-
-            slider.addEventListener('input', (e) => {
-                input.value = e.target.value;
-                updateFunc();
-            });
-
+            const slider = document.getElementById(sliderId); const input = document.getElementById(inputId);
+            slider.addEventListener('input', (e) => { input.value = e.target.value; updateFunc(); });
             input.addEventListener('change', (e) => {
-                let val = parseInt(e.target.value);
-                let min = parseInt(slider.min);
-                let max = parseInt(slider.max);
-
-                if (isNaN(val) || val < min) val = min;
-                if (val > max) val = max;
-
-                e.target.value = val;
-                slider.value = val;
-                updateFunc();
+                let val = parseInt(e.target.value); if (isNaN(val) || val < parseInt(slider.min)) val = parseInt(slider.min); if (val > parseInt(slider.max)) val = parseInt(slider.max);
+                e.target.value = val; slider.value = val; updateFunc();
             });
         };
 
-        const updateCHL = () => {
-            let hpf = parseInt(document.getElementById('hpf-l').value); 
-            let lpf = parseInt(document.getElementById('lpf-l').value); 
-            let slope = document.getElementById('slope-l').value;
-            if (!isProUser && slope !== "lr12" && slope !== "bw12") {
-                document.getElementById('slope-l').value = "lr12";
-                triggerActivationNotice();
-                return;
-            }
-            if(nodeL) nodeL.updateCrossover(hpf, lpf, slope);
-        };
-
-        setupBiDirectionalFilter('hpf-l', 'hpf-input-l', updateCHL);
-        setupBiDirectionalFilter('lpf-l', 'lpf-input-l', updateCHL);
+        const updateCHL = () => { if(nodeL) nodeL.updateCrossover(parseInt(document.getElementById('hpf-l').value), parseInt(document.getElementById('lpf-l').value), document.getElementById('slope-l').value); };
+        setupBiDirectionalFilter('hpf-l', 'hpf-input-l', updateCHL); setupBiDirectionalFilter('lpf-l', 'lpf-input-l', updateCHL);
 
         document.getElementById('gain-l').addEventListener('input', (e) => {
             let v = parseFloat(e.target.value); document.getElementById('gain-disp-l').innerText = v.toFixed(1) + " dB";
             if(nodeL) { nodeL.currentGainVal = calculateGain(v); if (!muteState.l.ch) nodeL.gainNode.gain.setTargetAtTime(nodeL.currentGainVal, audioCtx.currentTime, 0.02); }
         });
-        document.getElementById('slope-l').addEventListener('change', updateCHL);
 
-        const checkLimiterLock = (elId, defaultVal) => {
-            if (!isProUser) {
-                document.getElementById(elId).value = defaultVal;
+        const lockSlopeChange = (e, updateFn) => {
+            if (!isProUser && e.target.value !== 'lr12' && e.target.value !== 'bw12') {
+                e.target.value = 'lr12';
                 triggerActivationNotice();
-                return false;
             }
-            return true;
+            updateFn();
         };
 
-        document.getElementById('lim-thold-l').addEventListener('input', (e) => { if(checkLimiterLock('lim-thold-l', -1.0)) { document.getElementById('lim-thold-disp-l').innerText = parseFloat(e.target.value).toFixed(1) + " dB"; if(nodeL) nodeL.updateLimiterHardware(); } });
-        document.getElementById('lim-atk-l').addEventListener('input', (e) => { if(checkLimiterLock('lim-atk-l', 30)) { document.getElementById('lim-atk-disp-l').innerText = e.target.value + " ms"; if(nodeL) nodeL.updateLimiterHardware(); } });
-        document.getElementById('lim-rel-l').addEventListener('input', (e) => { if(checkLimiterLock('lim-rel-l', 500)) { document.getElementById('lim-rel-disp-l').innerText = e.target.value + " ms"; if(nodeL) nodeL.updateLimiterHardware(); } });
+        document.getElementById('slope-l').addEventListener('change', (e) => lockSlopeChange(e, updateCHL));
 
-        ['l', 'r'].forEach(ch => {
-            const container = document.getElementById(`eq-sliders-${ch}`);
-            container.addEventListener('input', function(e) {
-                if (e.target && e.target.type === 'range') {
-                    const idx = parseInt(e.target.getAttribute('data-idx'));
-                    const chKey = e.target.getAttribute('data-ch');
-                    if (!isProUser && idx > 4) { e.target.value = 0; triggerActivationNotice(); return; }
-                    let v = parseFloat(e.target.value);
-                    document.getElementById(`eq-val-${chKey}-${idx}`).innerText = (v > 0 ? `+${v}` : v) + "dB";
-                    if (chKey === 'l' && nodeL) nodeL.updateEQGains();
-                    if (chKey === 'r' && nodeR) nodeR.updateEQGains();
-                }
-            });
+        document.getElementById('eq-sliders-l').addEventListener('input', function(e) {
+            if (e.target && e.target.type === 'range') {
+                const idx = parseInt(e.target.dataset.idx);
+                const val = parseFloat(e.target.value);
+                document.getElementById(`eq-val-l-${idx}`).innerText = (val >= 0 ? '+' : '') + val.toFixed(1) + "dB";
+                if (nodeL) nodeL.updateEQGains();
+            }
         });
 
-        const updateCHR = () => {
-            let hpf = parseInt(document.getElementById('hpf-r').value); 
-            let lpf = parseInt(document.getElementById('lpf-r').value); 
-            let slope = document.getElementById('slope-r').value;
-            if (!isProUser && slope !== "lr12" && slope !== "bw12") {
-                document.getElementById('slope-r').value = "lr12";
-                triggerActivationNotice();
-                return;
+        document.getElementById('eq-sliders-r').addEventListener('input', function(e) {
+            if (e.target && e.target.type === 'range') {
+                const idx = parseInt(e.target.dataset.idx);
+                const val = parseFloat(e.target.value);
+                document.getElementById(`eq-val-r-${idx}`).innerText = (val >= 0 ? '+' : '') + val.toFixed(1) + "dB";
+                if (nodeR) nodeR.updateEQGains();
             }
-            if(nodeR) nodeR.updateCrossover(hpf, lpf, slope);
-        };
+        });
 
-        setupBiDirectionalFilter('hpf-r', 'hpf-input-r', updateCHR);
-        setupBiDirectionalFilter('lpf-r', 'lpf-input-r', updateCHR);
+        const updateCHR = () => { if(nodeR) nodeR.updateCrossover(parseInt(document.getElementById('hpf-r').value), parseInt(document.getElementById('lpf-r').value), document.getElementById('slope-r').value); };
+        setupBiDirectionalFilter('hpf-r', 'hpf-input-r', updateCHR); setupBiDirectionalFilter('lpf-r', 'lpf-input-r', updateCHR);
+        document.getElementById('slope-r').addEventListener('change', (e) => lockSlopeChange(e, updateCHR));
 
         document.getElementById('gain-r').addEventListener('input', (e) => {
             let v = parseFloat(e.target.value); document.getElementById('gain-disp-r').innerText = v.toFixed(1) + " dB";
             if(nodeR) { nodeR.currentGainVal = calculateGain(v); if (!muteState.r.ch) nodeR.gainNode.gain.setTargetAtTime(nodeR.currentGainVal, audioCtx.currentTime, 0.02); }
         });
+
         document.getElementById('delay-r').addEventListener('input', (e) => {
-            let msVal = parseFloat(e.target.value); document.getElementById('delay-disp-r').innerText = msVal.toFixed(1) + " ms";
-            if (nodeR && nodeR.delayNode) nodeR.delayNode.delayTime.setTargetAtTime(msVal / 1000, audioCtx.currentTime, 0.02);
+            let v = parseFloat(e.target.value); document.getElementById('delay-disp-r').innerText = v.toFixed(1) + " ms";
+            if(nodeR && nodeR.delayNode) nodeR.delayNode.delayTime.setTargetAtTime(v / 1000, audioCtx.currentTime, 0.02);
         });
-        document.getElementById('echo-feedback-r').addEventListener('input', (e) => { document.getElementById('echo-disp-r').innerText = e.target.value + " %"; if(nodeR) nodeR.updateEcho(); });
-        document.getElementById('echo-wet-r').addEventListener('input', (e) => { document.getElementById('echo-wet-disp').innerText = e.target.value + " %"; if(nodeR) nodeR.updateEcho(); });
-        document.getElementById('slope-r').addEventListener('change', updateCHR);
 
-        document.getElementById('lim-thold-r').addEventListener('input', (e) => { if(checkLimiterLock('lim-thold-r', -3.0)) { document.getElementById('lim-thold-disp-r').innerText = parseFloat(e.target.value).toFixed(1) + " dB"; if(nodeR) nodeR.updateLimiterHardware(); } });
-        document.getElementById('lim-atk-r').addEventListener('input', (e) => { if(checkLimiterLock('lim-atk-r', 3)) { document.getElementById('lim-atk-disp-r').innerText = e.target.value + " ms"; if(nodeR) nodeR.updateLimiterHardware(); } });
-        document.getElementById('lim-rel-r').addEventListener('input', (e) => { if(checkLimiterLock('lim-rel-r', 60)) { document.getElementById('lim-rel-disp-r').innerText = e.target.value + " ms"; if(nodeR) nodeR.updateLimiterHardware(); } });
-
-        document.getElementById('mute-ch-l').addEventListener('click', function() { muteState.l.ch = !muteState.l.ch; this.classList.toggle('active', muteState.l.ch); this.innerText = muteState.l.ch ? "MUTED" : "MUTE"; if(nodeL) nodeL.setMute(muteState.l.ch); });
-        document.getElementById('mute-ch-r').addEventListener('click', function() { muteState.r.ch = !muteState.r.ch; this.classList.toggle('active', muteState.r.ch); this.innerText = muteState.r.ch ? "MUTED" : "MUTE"; if(nodeR) nodeR.setMute(muteState.r.ch); });
-        document.getElementById('phase-ch-l').addEventListener('click', function() { muteState.l.phase = !muteState.l.phase; this.classList.toggle('active', muteState.l.phase); if(nodeL) nodeL.togglePhase(muteState.l.phase); });
-        document.getElementById('phase-ch-r').addEventListener('click', function() { muteState.r.phase = !muteState.r.phase; this.classList.toggle('active', muteState.r.phase); if(nodeR) nodeR.togglePhase(muteState.r.phase); });
-        document.getElementById('btn-echo-toggle-r').addEventListener('click', function() { muteState.r.echo = !muteState.r.echo; this.classList.toggle('active', muteState.r.echo); this.innerText = muteState.r.echo ? "ECHO ON" : "ECHO BYP"; if(nodeR) nodeR.updateEcho(); });
-
-        document.getElementById('byp-hpf-l').addEventListener('click', function() { muteState.l.hpfByp = !muteState.l.hpfByp; this.classList.toggle('active', muteState.l.hpfByp); updateCHL(); });
-        document.getElementById('mute-hpf-l').addEventListener('click', function() { muteState.l.hpfMute = !muteState.l.hpfMute; this.classList.toggle('active', muteState.l.hpfMute); updateCHL(); });
-        document.getElementById('byp-lpf-l').addEventListener('click', function() { muteState.l.lpfByp = !muteState.l.lpfByp; this.classList.toggle('active', muteState.l.lpfByp); updateCHL(); });
-        document.getElementById('mute-lpf-l').addEventListener('click', function() { muteState.l.lpfMute = !muteState.l.lpfMute; this.classList.toggle('active', muteState.l.lpfMute); updateCHL(); });
-        document.getElementById('byp-hpf-r').addEventListener('click', function() { muteState.r.hpfByp = !muteState.r.hpfByp; this.classList.toggle('active', muteState.r.hpfByp); updateCHR(); });
-        document.getElementById('mute-hpf-r').addEventListener('click', function() { muteState.r.hpfMute = !muteState.r.hpfMute; this.classList.toggle('active', muteState.r.hpfMute); updateCHR(); });
-        document.getElementById('byp-lpf-r').addEventListener('click', function() { muteState.r.lpfByp = !muteState.r.lpfByp; this.classList.toggle('active', muteState.r.lpfByp); updateCHR(); });
-        document.getElementById('mute-lpf-r').addEventListener('click', function() { muteState.r.lpfMute = !muteState.r.lpfMute; this.classList.toggle('active', muteState.r.lpfMute); updateCHR(); });
-
-        document.getElementById('lim-mute-l').addEventListener('click', function() { muteState.l.limMute = !muteState.l.limMute; this.classList.toggle('active', muteState.l.limMute); this.innerText = muteState.l.limMute ? "LIMIT BYPASS" : "LIMIT MUTE"; if(nodeL) nodeL.updateLimiterHardware(); });
-        document.getElementById('lim-mute-r').addEventListener('click', function() { muteState.r.limMute = !muteState.r.limMute; this.classList.toggle('active', muteState.r.limMute); this.innerText = muteState.r.limMute ? "LIMIT BYPASS" : "LIMIT MUTE"; if(nodeR) nodeR.updateLimiterHardware(); });
-
-        document.getElementById('mute-eq-l').addEventListener('click', function() { muteState.l.eq = !muteState.l.eq; this.classList.toggle('active', muteState.l.eq); this.innerText = muteState.l.eq ? "EQ BYPASSED" : "BYPASS EQ"; if(nodeL) nodeL.updateEQGains(); });
-        document.getElementById('mute-eq-r').addEventListener('click', function() { muteState.r.eq = !muteState.r.eq; this.classList.toggle('active', muteState.r.eq); this.innerText = muteState.r.eq ? "EQ BYPASSED" : "BYPASS EQ"; if(nodeR) nodeR.updateEQGains(); });
-
-        document.getElementById('reset-eq-l').addEventListener('click', function() {
-            eqFreqsL.forEach((_, idx) => { const slider = document.getElementById(`eq-l-${idx}`); if (slider) { if(!isProUser && idx > 4) return; slider.value = 0; document.getElementById(`eq-val-l-${idx}`).innerText = "0dB"; } });
-            if (nodeL) nodeL.updateEQGains();
+        document.getElementById('echo-feedback-r').addEventListener('input', (e) => {
+            document.getElementById('echo-disp-r').innerText = e.target.value + " %"; if(nodeR) nodeR.updateEcho();
         });
-        document.getElementById('reset-eq-r').addEventListener('click', function() {
-            eqFreqsR.forEach((_, idx) => { const slider = document.getElementById(`eq-r-${idx}`); if (slider) { if(!isProUser && idx > 4) return; slider.value = 0; document.getElementById(`eq-val-r-${idx}`).innerText = "0dB"; } });
-            if (nodeR) nodeR.updateEQGains();
+        document.getElementById('echo-wet-r').addEventListener('input', (e) => {
+            document.getElementById('echo-wet-disp').innerText = e.target.value + " %"; if(nodeR) nodeR.updateEcho();
+        });
+
+        ['l', 'r'].forEach(ch => {
+            ['thold', 'atk', 'rel'].forEach(p => {
+                const el = document.getElementById(`lim-${p}-${ch}`);
+                if(el) {
+                    el.addEventListener('input', (e) => {
+                        let val = parseFloat(e.target.value);
+                        let unit = p === 'thold' ? ' dB' : ' ms';
+                        document.getElementById(`lim-${p}-disp-${ch}`).innerText = val.toFixed(0) + unit;
+                        if(ch === 'l' && nodeL) nodeL.updateLimiterHardware();
+                        if(ch === 'r' && nodeR) nodeR.updateLimiterHardware();
+                    });
+                }
+            });
+        });
+
+        const setupToggleButton = (btnId, stateObj, key, callback) => {
+            const btn = document.getElementById(btnId); if(!btn) return;
+            btn.addEventListener('click', () => {
+                stateObj[key] = !stateObj[key]; btn.classList.toggle('active', stateObj[key]); if(callback) callback(stateObj[key]);
+            });
+        };
+
+        setupToggleButton('mute-ch-l', muteState.l, 'ch', (m) => nodeL && nodeL.setMute(m));
+        setupToggleButton('phase-ch-l', muteState.l, 'phase', (p) => nodeL && nodeL.togglePhase(p));
+        setupToggleButton('byp-hpf-l', muteState.l, 'hpfByp', updateCHL);
+        setupToggleButton('mute-hpf-l', muteState.l, 'hpfMute', updateCHL);
+        setupToggleButton('byp-lpf-l', muteState.l, 'lpfByp', updateCHL);
+        setupToggleButton('mute-lpf-l', muteState.l, 'lpfMute', updateCHL);
+        setupToggleButton('mute-eq-l', muteState.l, 'eq', () => { if(nodeL) nodeL.updateEQGains(); });
+        setupToggleButton('lim-mute-l', muteState.l, 'limMute', () => nodeL && nodeL.updateLimiterHardware());
+
+        setupToggleButton('mute-ch-r', muteState.r, 'ch', (m) => nodeR && nodeR.setMute(m));
+        setupToggleButton('phase-ch-r', muteState.r, 'phase', (p) => nodeR && nodeR.togglePhase(p));
+        setupToggleButton('byp-hpf-r', muteState.r, 'hpfByp', updateCHR);
+        setupToggleButton('mute-hpf-r', muteState.r, 'hpfMute', updateCHR);
+        setupToggleButton('byp-lpf-r', muteState.r, 'lpfByp', updateCHR);
+        setupToggleButton('mute-lpf-r', muteState.r, 'lpfMute', updateCHR);
+        setupToggleButton('btn-echo-toggle-r', muteState.r, 'echo', () => nodeR && nodeR.updateEcho());
+        setupToggleButton('mute-eq-r', muteState.r, 'eq', () => nodeR && nodeR.updateEQGains());
+        setupToggleButton('lim-mute-r', muteState.r, 'limMute', () => nodeR && nodeR.updateLimiterHardware());
+
+        document.getElementById('reset-eq-l').addEventListener('click', () => {
+            eqFreqsL.forEach((f, i) => {
+                let sl = document.getElementById(`eq-l-${i}`); if(sl) sl.value = 0;
+                let v = document.getElementById(`eq-val-l-${i}`); if(v) v.innerText = "0dB";
+            });
+            if(nodeL) nodeL.updateEQGains();
+        });
+
+        document.getElementById('reset-eq-r').addEventListener('click', () => {
+            eqFreqsR.forEach((f, i) => {
+                let sl = document.getElementById(`eq-r-${i}`); if(sl) sl.value = 0;
+                let v = document.getElementById(`eq-val-r-${i}`); if(v) v.innerText = "0dB";
+            });
+            if(nodeR) nodeR.updateEQGains();
+        });
+
+        document.getElementById('audio-file').addEventListener('change', function(e) {
+            if (e.target.files[0]) {
+                audioPlayer.src = URL.createObjectURL(e.target.files[0]);
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            }
+        });
+
+        audioPlayer.addEventListener('play', () => {
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
         });
 
         document.getElementById('btn-save-preset').addEventListener('click', () => {
-            if (!isProUser) { triggerActivationNotice(); return; }
+            const nama = prompt("Masukkan Nama Preset Baru:"); if(!nama) return;
+            const presets = dapatkanPresetLokalSemua();
             
-            const presetName = prompt("Masukkan nama preset baru (Akan disimpan lokal di HP ini):", "Preset_Lokal_1");
-            if (!presetName) return;
+            const stateL = []; eqFreqsL.forEach((_, i) => { stateL.push(document.getElementById(`eq-l-${i}`).value); });
+            const stateR = []; eqFreqsR.forEach((_, i) => { stateR.push(document.getElementById(`eq-r-${i}`).value); });
 
-            const presetData = {
-                masterGain: document.getElementById('master-gain').value,
-                currentMode: currentMode,
-                gainL: document.getElementById('gain-l').value,
-                hpfL: document.getElementById('hpf-l').value,
-                lpfL: document.getElementById('lpf-l').value,
-                slopeL: document.getElementById('slope-l').value,
-                limTholdL: document.getElementById('lim-thold-l').value,
-                limAtkL: document.getElementById('lim-atk-l').value,
-                limRelL: document.getElementById('lim-rel-l').value,
-                gainR: document.getElementById('gain-r').value,
-                delayR: document.getElementById('delay-r').value,
-                echoFeedbackR: document.getElementById('echo-feedback-r').value,
-                echoWetR: document.getElementById('echo-wet-r').value,
-                hpfR: document.getElementById('hpf-r').value,
-                lpfR: document.getElementById('lpf-r').value,
-                slopeR: document.getElementById('slope-r').value,
-                limTholdR: document.getElementById('lim-thold-r').value,
-                limAtkR: document.getElementById('lim-atk-r').value,
-                limRelR: document.getElementById('lim-rel-r').value,
-                eqL: eqFreqsL.map((_, idx) => document.getElementById(`eq-l-${idx}`).value),
-                eqR: eqFreqsR.map((_, idx) => document.getElementById(`eq-r-${idx}`).value)
+            presets[nama] = {
+                mg: document.getElementById('master-gain').value,
+                gl: document.getElementById('gain-l').value, hpfL: document.getElementById('hpf-l').value, lpfL: document.getElementById('lpf-l').value, slopeL: document.getElementById('slope-l').value, geqL: stateL,
+                gr: document.getElementById('gain-r').value, hpfR: document.getElementById('hpf-r').value, lpfR: document.getElementById('lpf-r').value, slopeR: document.getElementById('slope-r').value, delayR: document.getElementById('delay-r').value, fbackR: document.getElementById('echo-feedback-r').value, wetR: document.getElementById('echo-wet-r').value, geqR: stateR
             };
-
-            const semuaPreset = dapatkanPresetLokalSemua();
-            semuaPreset[presetName] = presetData;
-            simpanPresetLokalSemua(semuaPreset);
             
-            perbaruiDaftarPresetLokal();
-            document.getElementById('select-local-preset').value = presetName; 
-            alert(`🚀 Preset "${presetName}" Berhasil disimpan di Memori HP.`);
-        });
-
-        document.getElementById('select-local-preset').addEventListener('change', function() {
-            const namaPreset = this.value;
-            if (!namaPreset) return;
-
-            if (!isProUser) { 
-                this.value = ""; 
-                triggerActivationNotice(); 
-                return; 
-            }
-
-            const semuaPreset = dapatkanPresetLokalSemua();
-            const preset = semuaPreset[namaPreset];
-            if (!preset) { alert("Data preset rusak/tidak ditemukan."); return; }
-
-            document.getElementById('master-gain').value = preset.masterGain;
-            document.getElementById('gain-l').value = preset.gainL;
-            document.getElementById('hpf-l').value = preset.hpfL;
-            document.getElementById('lpf-l').value = preset.lpfL;
-            document.getElementById('slope-l').value = preset.slopeL;
-            document.getElementById('lim-thold-l').value = preset.limTholdL;
-            document.getElementById('lim-atk-l').value = preset.limAtkL;
-            document.getElementById('lim-rel-l').value = preset.limRelL;
-
-            document.getElementById('gain-r').value = preset.gainR;
-            document.getElementById('delay-r').value = preset.delayR;
-            document.getElementById('echo-feedback-r').value = preset.echoFeedbackR;
-            document.getElementById('echo-wet-r').value = preset.echoWetR;
-            document.getElementById('hpf-r').value = preset.hpfR;
-            document.getElementById('lpf-r').value = preset.lpfR;
-            document.getElementById('slope-r').value = preset.slopeR;
-            document.getElementById('lim-thold-r').value = preset.limTholdR;
-            document.getElementById('lim-atk-r').value = preset.limAtkR;
-            document.getElementById('lim-rel-r').value = preset.limRelR;
-
-            document.getElementById('master-gain-disp').innerText = parseFloat(preset.masterGain).toFixed(1) + " dB";
-            document.getElementById('gain-disp-l').innerText = parseFloat(preset.gainL).toFixed(1) + " dB";
-            document.getElementById('gain-disp-r').innerText = parseFloat(preset.gainR).toFixed(1) + " dB";
-            
-            document.getElementById('hpf-input-l').value = preset.hpfL;
-            document.getElementById('lpf-input-l').value = preset.lpfL;
-            document.getElementById('hpf-input-r').value = preset.hpfR;
-            document.getElementById('lpf-input-r').value = preset.lpfR;
-
-            document.getElementById('delay-disp-r').innerText = parseFloat(preset.delayR).toFixed(1) + " ms";
-            document.getElementById('echo-disp-r').innerText = preset.echoFeedbackR + " %";
-            document.getElementById('echo-wet-disp').innerText = preset.echoWetR + " %";
-            
-            document.getElementById('lim-thold-disp-l').innerText = parseFloat(preset.limTholdL).toFixed(1) + " dB";
-            document.getElementById('lim-atk-disp-l').innerText = preset.limAtkL + " ms";
-            document.getElementById('lim-rel-disp-l').innerText = preset.limRelL + " ms";
-            
-            document.getElementById('lim-thold-disp-r').innerText = parseFloat(preset.limTholdR).toFixed(1) + " dB";
-            document.getElementById('lim-atk-disp-r').innerText = preset.limAtkR + " ms";
-            document.getElementById('lim-rel-disp-r').innerText = preset.limRelR + " ms";
-
-            document.getElementById('hpf-l').dispatchEvent(new Event('input'));
-            document.getElementById('lpf-l').dispatchEvent(new Event('input'));
-            document.getElementById('hpf-r').dispatchEvent(new Event('input'));
-            document.getElementById('lpf-r').dispatchEvent(new Event('input'));
-
-            preset.eqL.forEach((val, idx) => { 
-                const s = document.getElementById(`eq-l-${idx}`); 
-                if(s) { 
-                    s.value = val; 
-                    let v = parseFloat(val); 
-                    document.getElementById(`eq-val-l-${idx}`).innerText = (v > 0 ? `+${v}` : v) + "dB"; 
-                } 
-            });
-            preset.eqR.forEach((val, idx) => { 
-                const s = document.getElementById(`eq-r-${idx}`); 
-                if(s) { 
-                    s.value = val; 
-                    let v = parseFloat(val); 
-                    document.getElementById(`eq-val-r-${idx}`).innerText = (v > 0 ? `+${v}` : v) + "dB"; 
-                } 
-            });
-
-            document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
-            const targetMode = preset.currentMode || "off";
-            const activeBtn = document.querySelector(`.btn-mode[data-mode="${targetMode}"]`);
-            if(activeBtn) activeBtn.classList.add('active');
-            currentMode = targetMode;
-
-            if(audioCtx && nodeL && nodeR) { 
-                applyCurrentMode(); 
-                
-                let t = audioCtx.currentTime;
-                nodeL.currentGainVal = calculateGain(parseFloat(preset.gainL));
-                if(!muteState.l.ch) nodeL.gainNode.gain.setTargetAtTime(nodeL.currentGainVal, t, 0.02);
-                
-                nodeR.currentGainVal = calculateGain(parseFloat(preset.gainR));
-                if(!muteState.r.ch) nodeR.gainNode.gain.setTargetAtTime(nodeR.currentGainVal, t, 0.02);
-
-                nodeL.updateLimiterHardware();
-                nodeR.updateLimiterHardware();
-
-                syncAllHardwareSlidersToDSP(); 
-            }
+            simpanPresetLokalSemua(presets); perbaruiDaftarPresetLokal(); alert(`Preset "${nama}" berhasil disimpan di memori internal perangkat.`);
         });
 
         document.getElementById('btn-delete-preset').addEventListener('click', () => {
-            const selectEl = document.getElementById('select-local-preset');
-            const namaPreset = selectEl.value;
-            
-            if(!namaPreset) { alert("Pilih preset yang ingin dihapus terlebih dahulu pada list."); return; }
-            if(!confirm(`Apakah Anda yakin ingin menghapus preset "${namaPreset}" dari HP ini?`)) return;
+            const sel = document.getElementById('select-local-preset').value; if(!sel) { alert("Pilih preset yang ingin dihapus."); return; }
+            if(confirm(`Hapus preset "${sel}"?`)) {
+                const presets = dapatkanPresetLokalSemua(); delete presets[sel]; simpanPresetLokalSemua(presets);
+                perbaruiDaftarPresetLokal(); alert("Preset terhapus.");
+            }
+        });
 
-            const semuaPreset = dapatkanPresetLokalSemua();
-            delete semuaPreset[namaPreset];
-            simpanPresetLokalSemua(semuaPreset);
-            perbaruiDaftarPresetLokal();
-            alert("Preset berhasil dihapus.");
+        document.getElementById('select-local-preset').addEventListener('change', (e) => {
+            const nama = e.target.value; if(!nama) return;
+            const presets = dapatkanPresetLokalSemua(); const p = presets[nama]; if(!p) return;
+
+            const setTrig = (id, val) => { const el = document.getElementById(id); if(el) { el.value = val || 0; el.dispatchEvent(new Event('input')); } };
+            
+            setTrig('master-gain', p.mg); setTrig('gain-l', p.gl); setTrig('hpf-l', p.hpfL); setTrig('lpf-l', p.lpfL);
+            const slL = document.getElementById('slope-l'); if(slL && p.slopeL) { slL.value = p.slopeL; slL.dispatchEvent(new Event('change')); }
+            if(p.geqL) {
+                p.geqL.forEach((v, i) => {
+                    const lSl = document.getElementById(`eq-l-${i}`); if(lSl) { lSl.value = v; lSl.dispatchEvent(new Event('input')); }
+                });
+            }
+
+            setTrig('gain-r', p.gr); setTrig('hpf-r', p.hpfR); setTrig('lpf-r', p.lpfR); setTrig('delay-r', p.delayR); setTrig('echo-feedback-r', p.fbackR); setTrig('echo-wet-r', p.wetR);
+            const slR = document.getElementById('slope-r'); if(slR && p.slopeR) { slR.value = p.slopeR; slR.dispatchEvent(new Event('change')); }
+            if(p.geqR) {
+                p.geqR.forEach((v, i) => {
+                    const rSl = document.getElementById(`eq-r-${i}`); if(rSl) { rSl.value = v; rSl.dispatchEvent(new Event('input')); }
+                });
+            }
+            if(nodeL) nodeL.updateEQGains(); if(nodeR) nodeR.updateEQGains(); alert(`Preset "${nama}" berhasil di-load.`);
+        });
+
+        document.getElementById('btn-activate-license').addEventListener('click', () => {
+            const key = document.getElementById('input-license-key').value.trim();
+            if(!key) { alert("Masukkan Lisensi Pro Key terlebih dahulu!"); return; }
+            checkLicenseOnline(key);
         });
     }
 
-    function processRealtimeVUMeters() {
-        if (!nodeL || !nodeR) return;
+    window.addEventListener('DOMContentLoaded', () => {
+        buildInterfaceAwal(); 
+        connectUIElements();
         
-        const runAnalysis = (engineObj, chLabel, txtObj) => {
-            if (!engineObj || !engineObj.analyser) return;
-            
-            const dataArray = new Uint8Array(engineObj.analyser.frequencyBinCount);
-            engineObj.analyser.getByteTimeDomainData(dataArray); 
-            
-            let sum = 0;
-            for (let i = 0; i < dataArray.length; i++) { 
-                let v = (dataArray[i] - 128) / 128; 
-                sum += v * v; 
+        const overlay = document.getElementById('init-audio-overlay');
+        const mainApp = document.getElementById('main-app');
+        const btnStart = document.getElementById('btn-start-engine');
+
+        btnStart.addEventListener('click', () => {
+            initSystemAudio();
+            overlay.style.display = 'none';
+            mainApp.style.filter = 'none';
+            mainApp.style.pointerEvents = 'auto';
+
+            const savedKey = localStorage.getItem('aji_audio_saved_key');
+            if(savedKey) {
+                document.getElementById('input-license-key').value = savedKey;
+                checkLicenseOnline(savedKey);
             }
-            
-            let rms = Math.sqrt(sum / dataArray.length); 
-            let db = 20 * Math.log10(rms); 
-            if (db === -Infinity || db < -90) db = -90;
-            
-            let tholdNode = document.getElementById(`lim-thold-${chLabel}`);
-            let currentThold = tholdNode ? parseFloat(tholdNode.value) : 0;
-            let isMuted = muteState[chLabel] ? muteState[chLabel].limMute : false;
-
-            if (db <= -55) { 
-                txtObj.innerText = "-inf dB"; 
-                txtObj.classList.remove('clip'); 
-            } else { 
-                txtObj.innerText = db.toFixed(1) + " dB"; 
-                if(!isMuted && db >= (currentThold - 0.3)) {
-                    txtObj.innerText = "LIMIT " + db.toFixed(1) + " dB"; 
-                    txtObj.classList.add('clip');
-                } else { 
-                    txtObj.classList.remove('clip'); 
-                }
-            }
-            
-            let totalLeds = 30, activeLeds = 0; 
-            if (db > -45) { 
-                let normalized = (db + 45) / 48; 
-                activeLeds = Math.floor(normalized * totalLeds); 
-            }
-            
-            const ledContainer = document.getElementById(`vu-${chLabel}`);
-            if (ledContainer) {
-                const ledNodes = ledContainer.children;
-                for(let i=0; i<totalLeds; i++) { 
-                    if(ledNodes[i]) { 
-                        if(i < activeLeds) ledNodes[i].classList.add('active'); 
-                        else ledNodes[i].classList.remove('active'); 
-                    } 
-                }
-            }
-        };
-        
-        function renderFrame() { 
-            if(nodeL && nodeR && audioCtx && audioCtx.state === "running") { 
-                runAnalysis(nodeL, 'l', document.getElementById('db-txt-l')); 
-                runAnalysis(nodeR, 'r', document.getElementById('db-txt-r')); 
-            } 
-            requestAnimationFrame(renderFrame); 
-        }
-        renderFrame();
-    }
-
-    buildInterfaceAwal();
-    connectUIElements();
-
-    document.getElementById('audio-file').addEventListener('change', (e) => {
-        const file = e.target.files[0]; if (!file) return;
-        audioPlayer.src = URL.createObjectURL(file);
-        if (!audioCtx) { initSystemAudio(); } else { audioCtx.resume(); }
-    });
-
-    audioPlayer.addEventListener('play', () => {
-        if (!audioCtx) { initSystemAudio(); } else { audioCtx.resume(); }
-        if (nodeR) nodeR.updateEcho();
-    });
-
-    audioPlayer.addEventListener('pause', () => {
-        if (nodeR) nodeR.updateEcho(true);
+        });
     });
 </script>
 </body>
