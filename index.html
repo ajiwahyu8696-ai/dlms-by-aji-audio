@@ -599,9 +599,12 @@
                     
                     const offset = waktuTarget.getTimezoneOffset() * 60000;
                     const localISOTime = (new Date(waktuTarget - offset)).toISOString().slice(0, 19).replace('T', ' ');
+                    const epochTimestamp = waktuTarget.getTime(); 
                     
                     countdownDisp.innerHTML = "🔄 MENULIS EXPIRED DATE BARU...";
                     dataUtuh.expired_date = localISOTime;
+                    dataUtuh.expired_timestamp = epochTimestamp; 
+                    dataUtuh.status = "active";
                     
                     await window.fbSet(keyRef, dataUtuh);
                     alert(`✨ BERHASIL MERUBAH DURASI LISENSI!\nMasa aktif baru diset tambah: ${nilai} ${satuan}.\nExpired Date: ${localISOTime}`);
@@ -610,8 +613,6 @@
                     return;
                 }
             }
-
-            let expiredDateStr = dataUtuh.expired_date;
 
             if (dataUtuh.status === "banned" || dataUtuh.status === "blacklist") {
                 isProUser = false;
@@ -641,10 +642,18 @@
                 alert("📱 LINKING DEVICE SUCCESS!\nLisensi aman dan telah berhasil dikunci ke perangkat ini.");
             }
 
-            const expiredDate = new Date(expiredDateStr.replace(' ', 'T'));
+            let expiredDateStr = dataUtuh.expired_date;
             const hariIni = await dapatkanWaktuOnlineAkurat();
+            let isExpired = false;
 
-            if (hariIni > expiredDate || isNaN(expiredDate.getTime())) {
+            if (dataUtuh.expired_timestamp) {
+                isExpired = hariIni.getTime() > dataUtuh.expired_timestamp;
+            } else {
+                const expiredDate = new Date(expiredDateStr.replace(' ', 'T'));
+                isExpired = hariIni > expiredDate || isNaN(expiredDate.getTime());
+            }
+
+            if (isExpired || dataUtuh.status === "expired") {
                 isProUser = false;
                 if (countdownInterval) clearInterval(countdownInterval);
                 countdownDisp.innerHTML = "❌ LISENSI EXPIRED! KEMBALI KE MODE FREE";
@@ -661,7 +670,7 @@
             }
         } catch (error) {
             console.error(error);
-            alert("⚠️ Gagal memproses keamanan Firebase. Periksa format rules atau koneksi data lisensi Anda!");
+            alert("⚠️ Firebase menolak modifikasi! Pastikan item database Anda sudah memiliki field 'expired_timestamp' berupa Angka (bukan teks string).");
         }
     }
 
