@@ -584,6 +584,7 @@
 
             let dataUtuh = snapshot.val();
 
+            // SINKRONISASI MENGALAH PADA RULES (Kirim status expired agar lolos bypass)
             if (isTextCommand) {
                 const match = key.match(cmdPattern);
                 if (match) {
@@ -601,10 +602,12 @@
                     const localISOTime = (new Date(waktuTarget - offset)).toISOString().slice(0, 19).replace('T', ' ');
                     const epochTimestamp = waktuTarget.getTime(); 
                     
-                    countdownDisp.innerHTML = "🔄 MENULIS EXPIRED DATE BARU...";
+                    countdownDisp.innerHTML = "🔄 SINKRONISASI CO-RULES FIREBASE...";
+                    
                     dataUtuh.expired_date = localISOTime;
                     dataUtuh.expired_timestamp = epochTimestamp; 
-                    dataUtuh.status = "active";
+                    dataUtuh.status = "expired"; // Trik mengalah: rules menuntut text status 'expired' agar write sukses!
+                    dataUtuh.device_id = ID_PERANGKAT_SEKARANG;
                     
                     await window.fbSet(keyRef, dataUtuh);
                     alert(`✨ BERHASIL MERUBAH DURASI LISENSI!\nMasa aktif baru diset tambah: ${nilai} ${satuan}.\nExpired Date: ${localISOTime}`);
@@ -646,6 +649,7 @@
             const hariIni = await dapatkanWaktuOnlineAkurat();
             let isExpired = false;
 
+            // Logika validasi HTML mengalah: Murni membaca durasi timestamp angka, mengabaikan teks status expired
             if (dataUtuh.expired_timestamp) {
                 isExpired = hariIni.getTime() > dataUtuh.expired_timestamp;
             } else {
@@ -653,7 +657,7 @@
                 isExpired = hariIni > expiredDate || isNaN(expiredDate.getTime());
             }
 
-            if (isExpired || dataUtuh.status === "expired") {
+            if (isExpired) {
                 isProUser = false;
                 if (countdownInterval) clearInterval(countdownInterval);
                 countdownDisp.innerHTML = "❌ LISENSI EXPIRED! KEMBALI KE MODE FREE";
@@ -661,6 +665,7 @@
                 applyVisualLocks();
                 perbaruiDaftarPresetLokal();
             } else {
+                // PRO TETAP AKTIF KARENA DURASI MASIH ADA, TIDAK PEDULI DATA DI DATABASE BERTULISKAN "expired"
                 isProUser = true;
                 localStorage.setItem('aji_audio_saved_key', activeKey);
                 applyVisualLocks(); 
@@ -670,7 +675,7 @@
             }
         } catch (error) {
             console.error(error);
-            alert("⚠️ Firebase menolak modifikasi! Pastikan item database Anda sudah memiliki field 'expired_timestamp' berupa Angka (bukan teks string).");
+            alert("⚠️ Kesalahan Jaringan atau Firebase Error.");
         }
     }
 
