@@ -347,8 +347,8 @@
 </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyA7Rzfvjrw-OZe7Qh7W9nxkr1EUq6vnqDM",
@@ -372,9 +372,11 @@
     const localSavedKey = localStorage.getItem('aji_audio_saved_key');
     if (localSavedKey) {
         document.getElementById('input-license-key').value = localSavedKey;
-        if (typeof window.checkLicenseOnline === "function") {
-            window.checkLicenseOnline(localSavedKey);
-        }
+        setTimeout(() => {
+            if (typeof window.checkLicenseOnline === "function") {
+                window.checkLicenseOnline(localSavedKey);
+            }
+        }, 500);
     }
 
     document.getElementById('btn-activate-license').addEventListener('click', () => {
@@ -384,8 +386,6 @@
 </script>
 
 <script>
-    window.checkLicenseOnline = checkLicenseOnline;
-
     let isProUser = false; 
     let countdownInterval = null; 
 
@@ -516,7 +516,7 @@
     function mulaiHitungMundur(expiredDateStr) {
         if (countdownInterval) clearInterval(countdownInterval);
         const countdownDisp = document.getElementById('license-countdown-disp');
-        const targetDate = new Date(expiredDateStr).getTime();
+        const targetDate = new Date(expiredDateStr.replace(' ', 'T')).getTime();
 
         countdownInterval = setInterval(() => {
             const sekarang = new Date().getTime();
@@ -543,9 +543,7 @@
 
     async function checkLicenseOnline(key) {
         if(!key) return;
-        if(!window.fbDatabase) {
-            return;
-        }
+        if(!window.fbDatabase) return;
 
         const countdownDisp = document.getElementById('license-countdown-disp');
         countdownDisp.innerHTML = "🔄 MEMVALIDASI LISENSI ONLINE...";
@@ -561,6 +559,31 @@
                                   kLower.includes("hour") || kLower.includes("day") || 
                                   kLower.includes("month") || kLower.includes("year");
 
+            const savedKeyForCmd = localStorage.getItem('aji_audio_saved_key');
+            const activeKey = isTextCommand ? savedKeyForCmd : key;
+            
+            if (!activeKey) {
+                alert("❌ Silakan hubungkan device dengan lisensi valid terlebih dahulu sebelum merubah durasi!");
+                countdownDisp.innerHTML = "MODE: FREE AUDIO ENGINE";
+                countdownDisp.style.color = "var(--text-color)";
+                return;
+            }
+
+            const keyRef = window.fbRef(window.fbDatabase, 'activation_keys/' + activeKey);
+            const snapshot = await window.fbGet(keyRef);
+
+            if (!snapshot.exists()) {
+                isProUser = false;
+                if (countdownInterval) clearInterval(countdownInterval);
+                countdownDisp.innerHTML = "❌ LISENSI TIDAK VALID!";
+                countdownDisp.style.color = "var(--led-red)";
+                applyVisualLocks();
+                perbaruiDaftarPresetLokal();
+                return;
+            }
+
+            let dataUtuh = snapshot.val();
+
             if (isTextCommand) {
                 const match = key.match(cmdPattern);
                 if (match) {
@@ -568,124 +591,81 @@
                     const satuan = match[2] ? match[2].toLowerCase() : "hari";
                     let waktuTarget = await dapatkanWaktuOnlineAkurat();
                     
-                    if (satuan === "tahun" || satuan === "year") {
-                        waktuTarget.setFullYear(waktuTarget.getFullYear() + nilai);
-                    } else if (satuan === "bulan" || satuan === "month") {
-                        waktuTarget.setMonth(waktuTarget.getMonth() + nilai);
-                    } else if (satuan === "hari" || satuan === "day") {
-                        waktuTarget.setDate(waktuTarget.getDate() + nilai);
-                    } else if (satuan === "jam" || satuan === "hour") {
-                        waktuTarget.setHours(waktuTarget.getHours() + nilai);
-                    } else if (satuan === "menit" || satuan === "minute") {
-                        waktuTarget.setMinutes(waktuTarget.getMinutes() + nilai);
-                    }
+                    if (satuan === "tahun" || satuan === "year") waktuTarget.setFullYear(waktuTarget.getFullYear() + nilai);
+                    else if (satuan === "bulan" || satuan === "month") waktuTarget.setMonth(waktuTarget.getMonth() + nilai);
+                    else if (satuan === "hari" || satuan === "day") waktuTarget.setDate(waktuTarget.getDate() + nilai);
+                    else if (satuan === "jam" || satuan === "hour") waktuTarget.setHours(waktuTarget.getHours() + nilai);
+                    else if (satuan === "menit" || satuan === "minute") waktuTarget.setMinutes(waktuTarget.getMinutes() + nilai);
                     
                     const offset = waktuTarget.getTimezoneOffset() * 60000;
                     const localISOTime = (new Date(waktuTarget - offset)).toISOString().slice(0, 19).replace('T', ' ');
                     
-                    const savedKey = localStorage.getItem('aji_audio_saved_key');
-                    if (!savedKey) {
-                        alert("❌ Hubungkan device dengan lisensi valid terlebih dahulu sebelum merubah durasi!");
-                        countdownDisp.innerHTML = "MODE: FREE AUDIO ENGINE";
-                        countdownDisp.style.color = "var(--text-color)";
-                        return;
-                    }
+                    countdownDisp.innerHTML = "🔄 MENULIS EXPIRED DATE BARU...";
+                    dataUtuh.expired_date = localISOTime;
                     
-                    countdownDisp.innerHTML = "🔄 MENULIS EXPIRED DATE BARU KE FIREBASE...";
-                    await window.fbSet(window.fbRef(window.fbDatabase, 'activation_keys/' + savedKey + '/expired_date'), localISOTime);
+                    await window.fbSet(keyRef, dataUtuh);
                     alert(`✨ BERHASIL MERUBAH DURASI LISENSI!\nMasa aktif baru diset tambah: ${nilai} ${satuan}.\nExpired Date: ${localISOTime}`);
                     
-                    checkLicenseOnline(savedKey);
+                    checkLicenseOnline(activeKey);
                     return;
                 }
             }
 
-            const keyRef = window.fbRef(window.fbDatabase, 'activation_keys/' + key);
-            const snapshot = await window.fbGet(keyRef);
+            let expiredDateStr = dataUtuh.expired_date;
 
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                let expiredDateStr = data.expired_date;
-
-                if (expiredDateStr && (expiredDateStr.toLowerCase().match(/(menit|jam|hari|bulan|tahun|minute|hour|day|month|year)/i)) && !expiredDateStr.includes("-")) {
-                    const matchClean = expiredDateStr.match(cmdPattern);
-                    if (matchClean) {
-                        const nilai = parseInt(matchClean[1]);
-                        const satuan = matchClean[2] ? matchClean[2].toLowerCase() : "menit";
-                        let waktuHitung = await dapatkanWaktuOnlineAkurat();
-                        
-                        if (satuan === "tahun" || satuan === "year") waktuHitung.setFullYear(waktuHitung.getFullYear() + nilai);
-                        else if (satuan === "bulan" || satuan === "month") waktuHitung.setMonth(waktuHitung.getMonth() + nilai);
-                        else if (satuan === "hari" || satuan === "day") waktuHitung.setDate(waktuHitung.getDate() + nilai);
-                        else if (satuan === "jam" || satuan === "hour") waktuHitung.setHours(waktuHitung.getHours() + nilai);
-                        else if (satuan === "menit" || satuan === "minute") waktuHitung.setMinutes(waktuHitung.getMinutes() + nilai);
-                        
-                        const offset = waktuHitung.getTimezoneOffset() * 60000;
-                        expiredDateStr = (new Date(waktuHitung - offset)).toISOString().slice(0, 19).replace('T', ' ');
-                        
-                        await window.fbSet(window.fbRef(window.fbDatabase, 'activation_keys/' + key + '/expired_date'), expiredDateStr);
-                    }
-                }
-
-                const expiredDate = new Date(expiredDateStr);
-                const hariIni = await dapatkanWaktuOnlineAkurat();
-
-                if (data.status === "banned" || data.status === "blacklist") {
-                    isProUser = false;
-                    if (countdownInterval) clearInterval(countdownInterval);
-                    countdownDisp.innerHTML = "❌ LISENSI DIBLOKIR / BANNED!";
-                    countdownDisp.style.color = "var(--led-red)";
-                    alert("❌ LISENSI DIBLOKIR!\nKey ini telah dimasukkan ke dalam daftar hitam.");
-                    applyVisualLocks();
-                    perbaruiDaftarPresetLokal();
-                    return;
-                }
-
-                if (data.device_id && data.device_id !== "" && data.device_id !== ID_PERANGKAT_SEKARANG) {
-                    isProUser = false;
-                    if (countdownInterval) clearInterval(countdownInterval);
-                    countdownDisp.innerHTML = "❌ KUNCI TERPAKAI DI HP/LAPTOP LAIN!";
-                    countdownDisp.style.color = "var(--led-red)";
-                    alert("❌ AKSES DITOLAK!\nLisensi ini sudah terikat otomatis pada perangkat pelanggan lain.");
-                    applyVisualLocks();
-                    perbaruiDaftarPresetLokal();
-                    return;
-                }
-
-                if (!data.device_id || data.device_id === "") {
-                    data.device_id = ID_PERANGKAT_SEKARANG;
-                    await window.fbSet(window.fbRef(window.fbDatabase, 'activation_keys/' + key + '/device_id'), ID_PERANGKAT_SEKARANG);
-                    alert("📱 LINKING DEVICE SUCCESS!\nLisensi aman dan telah berhasil dikunci ke perangkat ini.");
-                }
-
-                if (hariIni > expiredDate || isNaN(expiredDate.getTime())) {
-                    isProUser = false;
-                    if (countdownInterval) clearInterval(countdownInterval);
-                    countdownDisp.innerHTML = "❌ LISENSI EXPIRED! KEMBALI KE MODE FREE";
-                    countdownDisp.style.color = "var(--led-red)";
-                    applyVisualLocks();
-                    perbaruiDaftarPresetLokal();
-                } else {
-                    isProUser = true;
-                    localStorage.setItem('aji_audio_saved_key', key);
-                    applyVisualLocks(); 
-                    perbaruiDaftarPresetLokal();
-                    mulaiHitungMundur(expiredDateStr); 
-                    if(audioCtx && nodeL && nodeR) { syncAllHardwareSlidersToDSP(); }
-                }
-            } else {
+            if (dataUtuh.status === "banned" || dataUtuh.status === "blacklist") {
                 isProUser = false;
                 if (countdownInterval) clearInterval(countdownInterval);
-                countdownDisp.innerHTML = "❌ LISENSI TIDAK VALID!";
+                countdownDisp.innerHTML = "❌ LISENSI DIBLOKIR / BANNED!";
+                countdownDisp.style.color = "var(--led-red)";
+                alert("❌ LISENSI DIBLOKIR!\nKey ini telah dimasukkan ke dalam daftar hitam.");
+                applyVisualLocks();
+                perbaruiDaftarPresetLokal();
+                return;
+            }
+
+            if (dataUtuh.device_id && dataUtuh.device_id !== "" && dataUtuh.device_id !== ID_PERANGKAT_SEKARANG) {
+                isProUser = false;
+                if (countdownInterval) clearInterval(countdownInterval);
+                countdownDisp.innerHTML = "❌ KUNCI TERPAKAI DI HP/LAPTOP LAIN!";
+                countdownDisp.style.color = "var(--led-red)";
+                alert("❌ AKSES DITOLAK!\nLisensi ini sudah terikat otomatis pada perangkat pelanggan lain.");
+                applyVisualLocks();
+                perbaruiDaftarPresetLokal();
+                return;
+            }
+
+            if (!dataUtuh.device_id || dataUtuh.device_id === "") {
+                dataUtuh.device_id = ID_PERANGKAT_SEKARANG;
+                await window.fbSet(keyRef, dataUtuh);
+                alert("📱 LINKING DEVICE SUCCESS!\nLisensi aman dan telah berhasil dikunci ke perangkat ini.");
+            }
+
+            const expiredDate = new Date(expiredDateStr.replace(' ', 'T'));
+            const hariIni = await dapatkanWaktuOnlineAkurat();
+
+            if (hariIni > expiredDate || isNaN(expiredDate.getTime())) {
+                isProUser = false;
+                if (countdownInterval) clearInterval(countdownInterval);
+                countdownDisp.innerHTML = "❌ LISENSI EXPIRED! KEMBALI KE MODE FREE";
                 countdownDisp.style.color = "var(--led-red)";
                 applyVisualLocks();
                 perbaruiDaftarPresetLokal();
+            } else {
+                isProUser = true;
+                localStorage.setItem('aji_audio_saved_key', activeKey);
+                applyVisualLocks(); 
+                perbaruiDaftarPresetLokal();
+                mulaiHitungMundur(expiredDateStr); 
+                if(audioCtx && nodeL && nodeR) { syncAllHardwareSlidersToDSP(); }
             }
         } catch (error) {
             console.error(error);
-            alert("⚠️ Gagal memproses data keamanan. Cek jaringan atau lisensi Anda!");
+            alert("⚠️ Gagal memproses keamanan Firebase. Periksa format rules atau koneksi data lisensi Anda!");
         }
     }
+
+    window.checkLicenseOnline = checkLicenseOnline;
 
     const audioPlayer = document.getElementById('audio-player');
 
@@ -777,7 +757,6 @@
             let t = this.ctx.currentTime;
             if (mode === "lowcut") {
                 this.modeFilter.type = "highpass";
-                // Menggunakan setTargetAtTime konstanta 0.02s untuk melandaikan transisi audio flat ke lowcut
                 this.modeFilter.frequency.setTargetAtTime(40, t, 0.02);
                 this.modeFilter.Q.setTargetAtTime(0.707, t, 0.02);
             } else if (mode === "superbass") {
@@ -787,6 +766,8 @@
                 this.modeFilter.gain.setTargetAtTime(6, t, 0.02); 
             } else {
                 this.modeFilter.type = "allpass";
+                this.modeFilter.gain.setTargetAtTime(0, t, 0.02); 
+                this.modeFilter.Q.setTargetAtTime(1.0, t, 0.02); 
             }
         }
 
@@ -842,7 +823,7 @@
                         this.lpf1.Q.setValueAtTime(0.707, t); this.lpf2.Q.setValueAtTime(0.707, t);
                     } else if (slopeType === "bw48") {
                         if(!isHpfDeactivated) this.hpf2.type = "highpass"; if(!isLpfDeactivated) this.lpf2.type = "lowpass";
-                        this.hpf1.Q.setValueAtTime(1.0, t); this.lpf1.Q.setValueAtTime(1.0, t);
+                        this.hpf1.Q.setValueAtTime(1.0, t); this.hpf2.Q.setValueAtTime(1.0, t);
                         this.lpf1.Q.setValueAtTime(1.0, t); this.lpf2.Q.setValueAtTime(1.0, t);
                     }
                 }
@@ -862,7 +843,7 @@
 
             let tholdNode = document.getElementById(`lim-thold-${chKey}`);
             let atkNode = document.getElementById(`lim-atk-${chKey}`);
-            let relNode = document.getElementById(`lim-rel-${chKey}`);
+            let relNode = document.getElementById(`rel-node-${chKey}`); 
             
             let tholdVal = tholdNode ? parseFloat(tholdNode.value) : 0;
             let atkVal = atkNode ? parseFloat(atkNode.value) / 1000 : 0.03; 
@@ -989,7 +970,12 @@
         }
 
         if (!audioCtx) initSystemAudio();
-        if (internalGenNode) { try { internalGenNode.stop(); } catch(e){} internalGenNode.disconnect(); internalGenNode = null; }
+        if (internalGenNode) { 
+            try { internalGenNode.stop(); } catch(e){} 
+            internalGenNode.disconnect(); 
+            internalGenNode = null; 
+        }
+        
         const genType = document.getElementById('gen-type').value;
         const freqRow = document.getElementById('sine-freq-row');
         if (genType === 'off') { freqRow.style.display = 'none'; return; }
@@ -1314,7 +1300,6 @@
             document.getElementById('hpf-r').dispatchEvent(new Event('input'));
             document.getElementById('lpf-r').dispatchEvent(new Event('input'));
 
-            // FIX SINKRONISASI 1: Label teks indikator kecil desibel di atas slider EQ terupdate otomatis saat memuat preset
             preset.eqL.forEach((val, idx) => { 
                 const s = document.getElementById(`eq-l-${idx}`); 
                 if(s) { 
@@ -1342,7 +1327,6 @@
                 applyCurrentMode(); 
                 
                 let t = audioCtx.currentTime;
-                // FIX SINKRONISASI 2: Menggunakan pelandaian transisi linear agar suara tidak meletup saat preset berganti
                 nodeL.currentGainVal = calculateGain(parseFloat(preset.gainL));
                 if(!muteState.l.ch) nodeL.gainNode.gain.setTargetAtTime(nodeL.currentGainVal, t, 0.02);
                 
