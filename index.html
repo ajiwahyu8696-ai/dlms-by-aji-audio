@@ -471,6 +471,7 @@
     let audioCtx = null, audioSource = null, masterGainNode = null, nodeL = null, nodeR = null;
     let internalGenNode = null; 
     let globalRenderReqId = null;
+    let currentAudioUrl = null; 
 
     const calculateGain = (db) => Math.pow(10, db / 20);
 
@@ -534,8 +535,9 @@
     function applyVisualLocks() {
         const lockSelectMenu = (selectId) => {
             const selectEl = document.getElementById(selectId);
-            if (!selectEl) return;
+            if (!selectEl) return false;
             
+            let changed = false;
             Array.from(selectEl.options).forEach(opt => {
                 if (opt.value !== "lr12" && opt.value !== "bw12") {
                     opt.disabled = !isProUser;
@@ -544,7 +546,9 @@
 
             if (!isProUser && selectEl.value !== "lr12" && selectEl.value !== "bw12") {
                 selectEl.value = "lr12"; 
+                changed = true;
             }
+            return changed;
         };
 
         if (!isProUser) {
@@ -552,18 +556,19 @@
             document.getElementById('panel-limiter-l').classList.add('locked-feature');
             document.getElementById('panel-limiter-r').classList.add('locked-feature');
             document.querySelectorAll('.lock-badge').forEach(b => b.style.display = 'block');
-            
-            lockSelectMenu('slope-l');
-            lockSelectMenu('slope-r');
         } else {
             document.getElementById('panel-generator-group').classList.remove('locked-feature');
             document.getElementById('panel-limiter-l').classList.remove('locked-feature');
             document.getElementById('panel-limiter-r').classList.remove('locked-feature');
             document.querySelectorAll('.lock-badge').forEach(b => b.style.display = 'none');
-            
-            lockSelectMenu('slope-l');
-            lockSelectMenu('slope-r');
         }
+
+        let changedL = lockSelectMenu('slope-l');
+        let changedR = lockSelectMenu('slope-r');
+        
+        // Menggunakan bubbles: true agar event bisa terdeteksi oleh listener jika perlu
+        if (changedL) document.getElementById('slope-l').dispatchEvent(new Event('change', { bubbles: true }));
+        if (changedR) document.getElementById('slope-r').dispatchEvent(new Event('change', { bubbles: true }));
 
         ['l', 'r'].forEach(ch => {
             for(let i = 5; i < 15; i++) {
@@ -608,7 +613,7 @@
             const div = document.createElement('div');
             div.classList.add('eq-ch');
             div.innerHTML = `
-                <span id="eq-val-l-${idx}" class="eq-rt-val">0dB</span>
+                <span id="eq-val-l-${idx}" class="eq-rt-val">0.0dB</span>
                 <input type="range" id="eq-l-${idx}" data-ch="l" data-idx="${idx}" min="-12" max="12" step="0.5" value="0">
                 <span class="eq-freq-lbl">${freq}</span>
             `;
@@ -629,7 +634,7 @@
             const div = document.createElement('div');
             div.classList.add('eq-ch');
             div.innerHTML = `
-                <span id="eq-val-r-${idx}" class="eq-rt-val">0dB</span>
+                <span id="eq-val-r-${idx}" class="eq-rt-val">0.0dB</span>
                 <input type="range" id="eq-r-${idx}" data-ch="r" data-idx="${idx}" min="-12" max="12" step="0.5" value="0">
                 <span class="eq-freq-lbl">${freq}</span>
             `;
@@ -685,7 +690,8 @@
                 
                 countdownDisp.classList.remove('active-glow');
                 countdownDisp.classList.add('expired-glow');
-                applyVisualLocks(); 
+                applyVisualLocks();
+                if(audioCtx && nodeL && nodeR) { syncAllHardwareSlidersToDSP(); } 
                 
                 const savedKey = localStorage.getItem('aji_audio_saved_key');
                 if (savedKey) {
@@ -716,13 +722,17 @@
 
                 if (data.status === "banned" || data.status === "expired") { 
                     alert("Lisensi ini telah diblokir atau sudah kadaluarsa!");
-                    isProUser = false; applyVisualLocks(); return; 
+                    isProUser = false; applyVisualLocks(); 
+                    if(audioCtx && nodeL && nodeR) { syncAllHardwareSlidersToDSP(); }
+                    return; 
                 }
                 
                 if (data.device_id) {
                     if (data.device_id !== ID_PERANGKAT_SEKARANG) { 
                         alert("Lisensi ini sudah digunakan pada perangkat lain!");
-                        isProUser = false; applyVisualLocks(); return; 
+                        isProUser = false; applyVisualLocks(); 
+                        if(audioCtx && nodeL && nodeR) { syncAllHardwareSlidersToDSP(); }
+                        return; 
                     }
                 } else {
                     try { 
@@ -732,7 +742,9 @@
 
                 if (!expiredDateStr || expiredDateStr === "undefined") {
                     alert("Data kadaluarsa lisensi tidak ditemukan di server.");
-                    isProUser = false; applyVisualLocks(); return;
+                    isProUser = false; applyVisualLocks(); 
+                    if(audioCtx && nodeL && nodeR) { syncAllHardwareSlidersToDSP(); }
+                    return;
                 }
                 
                 const hariIni = await dapatkanWaktuOnlineAkurat();
@@ -751,7 +763,9 @@
                     expiredDate = new Date(expiredDateStr);
                     if (isNaN(expiredDate.getTime())) {
                         alert("Format tanggal kadaluarsa tidak dikenali.");
-                        isProUser = false; applyVisualLocks(); return;
+                        isProUser = false; applyVisualLocks(); 
+                        if(audioCtx && nodeL && nodeR) { syncAllHardwareSlidersToDSP(); }
+                        return;
                     }
                 }
 
@@ -765,6 +779,7 @@
                     countdownDisp.classList.add('expired-glow');
                     
                     update(keyRef, { status: "expired" }).catch(() => console.warn("Gagal menandai lisensi expired di DB."));
+                    if(audioCtx && nodeL && nodeR) { syncAllHardwareSlidersToDSP(); }
                 } else {
                     isProUser = true; 
                     localStorage.setItem('aji_audio_saved_key', key);
@@ -847,16 +862,27 @@
         applyDspMode(mode) {
             if (!this.ctx) return;
             let t = this.ctx.currentTime;
-            if (mode === "lowcut") {
-                this.modeFilter.type = "highpass"; this.modeFilter.frequency.setTargetAtTime(40, t, 0.02); this.modeFilter.Q.setTargetAtTime(0.707, t, 0.02);
-            } else if (mode === "superbass") {
-                this.modeFilter.type = "peaking"; this.modeFilter.frequency.setTargetAtTime(60, t, 0.02); this.modeFilter.Q.setTargetAtTime(2.0, t, 0.02); this.modeFilter.gain.setTargetAtTime(6, t, 0.02); 
-            } else {
-                this.modeFilter.type = "peaking";
-                this.modeFilter.frequency.setTargetAtTime(1000, t, 0.02);
-                this.modeFilter.gain.setTargetAtTime(0, t, 0.02); 
-                this.modeFilter.Q.setTargetAtTime(1.0, t, 0.02); 
-            }
+            
+            this.modeFilter.gain.setTargetAtTime(0, t, 0.01); 
+            
+            setTimeout(() => {
+                let t2 = this.ctx.currentTime;
+                if (mode === "lowcut") {
+                    this.modeFilter.type = "highpass"; 
+                    this.modeFilter.frequency.setTargetAtTime(40, t2, 0.02); 
+                    this.modeFilter.Q.setTargetAtTime(0.707, t2, 0.02);
+                } else if (mode === "superbass") {
+                    this.modeFilter.type = "peaking"; 
+                    this.modeFilter.frequency.setTargetAtTime(60, t2, 0.02); 
+                    this.modeFilter.Q.setTargetAtTime(2.0, t2, 0.02); 
+                    this.modeFilter.gain.setTargetAtTime(6, t2, 0.02); 
+                } else {
+                    this.modeFilter.type = "peaking";
+                    this.modeFilter.frequency.setTargetAtTime(1000, t2, 0.02);
+                    this.modeFilter.gain.setTargetAtTime(0, t2, 0.02); 
+                    this.modeFilter.Q.setTargetAtTime(1.0, t2, 0.02); 
+                }
+            }, 20);
         }
 
         updateCrossover(hpfVal, lpfVal, slopeType) {
@@ -960,30 +986,35 @@
 
     function initSystemAudio() {
         if (audioCtx) return; 
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        masterGainNode = audioCtx.createGain();
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            masterGainNode = audioCtx.createGain();
 
-        const splitter = audioCtx.createChannelSplitter(2);
-        const merger = audioCtx.createChannelMerger(2);
+            const splitter = audioCtx.createChannelSplitter(2);
+            const merger = audioCtx.createChannelMerger(2);
 
-        nodeL = new DLMSChannelEngine(audioCtx, 'L');
-        nodeR = new DLMSChannelEngine(audioCtx, 'R');
+            nodeL = new DLMSChannelEngine(audioCtx, 'L');
+            nodeR = new DLMSChannelEngine(audioCtx, 'R');
 
-        masterGainNode.connect(splitter);
-        const lowSumNode = audioCtx.createGain(); lowSumNode.gain.setValueAtTime(0.5, audioCtx.currentTime); 
+            masterGainNode.connect(splitter);
+            const lowSumNode = audioCtx.createGain(); lowSumNode.gain.setValueAtTime(0.5, audioCtx.currentTime); 
 
-        splitter.connect(lowSumNode, 0); splitter.connect(lowSumNode, 1); 
-        lowSumNode.connect(nodeL.gainNode); splitter.connect(nodeR.gainNode, 1); 
+            splitter.connect(lowSumNode, 0); splitter.connect(lowSumNode, 1); 
+            lowSumNode.connect(nodeL.gainNode); splitter.connect(nodeR.gainNode, 1); 
 
-        nodeL.limiter.connect(merger, 0, 0); nodeR.limiter.connect(merger, 0, 1);
-        merger.connect(audioCtx.destination);
+            nodeL.limiter.connect(merger, 0, 0); nodeR.limiter.connect(merger, 0, 1);
+            merger.connect(audioCtx.destination);
 
-        audioSource = audioCtx.createMediaElementSource(audioPlayer); audioSource.connect(masterGainNode);
+            audioSource = audioCtx.createMediaElementSource(audioPlayer); audioSource.connect(masterGainNode);
 
-        applyCurrentMode(); syncAllHardwareSlidersToDSP();
-        
-        if(!globalRenderReqId) {
-            processRealtimeVUMeters();
+            applyCurrentMode(); syncAllHardwareSlidersToDSP();
+            
+            if(!globalRenderReqId) {
+                processRealtimeVUMeters();
+            }
+        } catch (e) {
+            console.error("Gagal inisialisasi AudioContext:", e);
+            alert("Terjadi kesalahan pada inisialisasi Audio Core. Pastikan browser Anda mendukung Web Audio API.");
         }
     }
 
@@ -1008,11 +1039,11 @@
         const genType = document.getElementById('gen-type').value; const freqRow = document.getElementById('sine-freq-row');
         if (genType === 'off') { freqRow.style.display = 'none'; return; }
         
-        if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+        if (audioCtx && audioCtx.state === 'suspended') { audioCtx.resume(); }
         
         if (genType === 'pink') { freqRow.style.display = 'none'; internalGenNode = createPinkNoiseNode(); } 
         else if (genType === 'sine') { freqRow.style.display = 'grid'; let freqVal = parseInt(document.getElementById('gen-sine-freq').value); internalGenNode = audioCtx.createOscillator(); internalGenNode.type = 'sine'; internalGenNode.frequency.setValueAtTime(freqVal, audioCtx.currentTime); }
-        internalGenNode.connect(masterGainNode); internalGenNode.start();
+        if(internalGenNode) { internalGenNode.connect(masterGainNode); internalGenNode.start(); }
     }
 
     function syncAllHardwareSlidersToDSP() {
@@ -1156,7 +1187,8 @@
             if (e.target && e.target.type === 'range') {
                 const idx = parseInt(e.target.dataset.idx);
                 const val = parseFloat(e.target.value);
-                document.getElementById(`eq-val-l-${idx}`).innerText = (val >= 0 ? '+' : '') + val.toFixed(1) + "dB";
+                // FIX: val > 0 alih-alih val >= 0 agar saat 0 tidak muncul +0.0dB
+                document.getElementById(`eq-val-l-${idx}`).innerText = (val > 0 ? '+' : '') + val.toFixed(1) + "dB";
                 if (nodeL) nodeL.updateEQGains();
             }
         });
@@ -1165,7 +1197,8 @@
             if (e.target && e.target.type === 'range') {
                 const idx = parseInt(e.target.dataset.idx);
                 const val = parseFloat(e.target.value);
-                document.getElementById(`eq-val-r-${idx}`).innerText = (val >= 0 ? '+' : '') + val.toFixed(1) + "dB";
+                // FIX: val > 0 alih-alih val >= 0 agar saat 0 tidak muncul +0.0dB
+                document.getElementById(`eq-val-r-${idx}`).innerText = (val > 0 ? '+' : '') + val.toFixed(1) + "dB";
                 if (nodeR) nodeR.updateEQGains();
             }
         });
@@ -1235,7 +1268,7 @@
         document.getElementById('reset-eq-l').addEventListener('click', () => {
             eqFreqsL.forEach((f, i) => {
                 let sl = document.getElementById(`eq-l-${i}`); if(sl) sl.value = 0;
-                let v = document.getElementById(`eq-val-l-${i}`); if(v) v.innerText = "0dB";
+                let v = document.getElementById(`eq-val-l-${i}`); if(v) v.innerText = "0.0dB"; // FIX: Teks reset disinkronkan ke 0.0dB
             });
             if(nodeL) nodeL.updateEQGains();
         });
@@ -1243,14 +1276,19 @@
         document.getElementById('reset-eq-r').addEventListener('click', () => {
             eqFreqsR.forEach((f, i) => {
                 let sl = document.getElementById(`eq-r-${i}`); if(sl) sl.value = 0;
-                let v = document.getElementById(`eq-val-r-${i}`); if(v) v.innerText = "0dB";
+                let v = document.getElementById(`eq-val-r-${i}`); if(v) v.innerText = "0.0dB"; // FIX: Teks reset disinkronkan ke 0.0dB
             });
             if(nodeR) nodeR.updateEQGains();
         });
 
         document.getElementById('audio-file').addEventListener('change', function(e) {
             if (e.target.files[0]) {
-                audioPlayer.src = URL.createObjectURL(e.target.files[0]);
+                if (currentAudioUrl) {
+                    URL.revokeObjectURL(currentAudioUrl);
+                }
+                currentAudioUrl = URL.createObjectURL(e.target.files[0]);
+                audioPlayer.src = currentAudioUrl;
+                
                 if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
             }
         });
@@ -1266,10 +1304,17 @@
             const stateL = []; eqFreqsL.forEach((_, i) => { stateL.push(document.getElementById(`eq-l-${i}`).value); });
             const stateR = []; eqFreqsR.forEach((_, i) => { stateR.push(document.getElementById(`eq-r-${i}`).value); });
 
+            // FIX: Menyimpan BANYAK state penting yang sebelumnya terlewat (Limiter, DSP Mode, Semua status tombol Mute)
             presets[nama] = {
                 mg: document.getElementById('master-gain').value,
-                gl: document.getElementById('gain-l').value, hpfL: document.getElementById('hpf-l').value, lpfL: document.getElementById('lpf-l').value, slopeL: document.getElementById('slope-l').value, geqL: stateL,
-                gr: document.getElementById('gain-r').value, hpfR: document.getElementById('hpf-r').value, lpfR: document.getElementById('lpf-r').value, slopeR: document.getElementById('slope-r').value, delayR: document.getElementById('delay-r').value, fbackR: document.getElementById('echo-feedback-r').value, wetR: document.getElementById('echo-wet-r').value, geqR: stateR
+                gl: document.getElementById('gain-l').value, hpfL: document.getElementById('hpf-l').value, lpfL: document.getElementById('lpf-l').value, slopeL: document.getElementById('slope-l').value, 
+                limTholdL: document.getElementById('lim-thold-l').value, limAtkL: document.getElementById('lim-atk-l').value, limRelL: document.getElementById('lim-rel-l').value,
+                geqL: stateL,
+                gr: document.getElementById('gain-r').value, hpfR: document.getElementById('hpf-r').value, lpfR: document.getElementById('lpf-r').value, slopeR: document.getElementById('slope-r').value, delayR: document.getElementById('delay-r').value, fbackR: document.getElementById('echo-feedback-r').value, wetR: document.getElementById('echo-wet-r').value, 
+                limTholdR: document.getElementById('lim-thold-r').value, limAtkR: document.getElementById('lim-atk-r').value, limRelR: document.getElementById('lim-rel-r').value,
+                geqR: stateR,
+                dspMode: currentMode, // Menyimpan Lowcut / Superbass mode
+                muteState: JSON.parse(JSON.stringify(muteState)) // Deep copy status tombol
             };
             
             simpanPresetLokalSemua(presets); perbaruiDaftarPresetLokal(); alert(`Preset "${nama}" berhasil disimpan di memori internal perangkat.`);
@@ -1287,24 +1332,68 @@
             const nama = e.target.value; if(!nama) return;
             const presets = dapatkanPresetLokalSemua(); const p = presets[nama]; if(!p) return;
 
-            const setTrig = (id, val) => { const el = document.getElementById(id); if(el) { el.value = val || 0; el.dispatchEvent(new Event('input')); } };
+            // FIX: Menerapkan 'bubbles: true' pada Event Input agar Parent Delegation listener GEQ ikut mendeteksi perubahannya dan mensinkronkan label text UI saat diload
+            const setTrig = (id, val) => { 
+                const el = document.getElementById(id); 
+                if(el && val !== undefined && val !== null) { 
+                    el.value = val; 
+                    el.dispatchEvent(new Event('input', { bubbles: true })); 
+                } 
+            };
             
-            setTrig('master-gain', p.mg); setTrig('gain-l', p.gl); setTrig('hpf-l', p.hpfL); setTrig('lpf-l', p.lpfL);
-            const slL = document.getElementById('slope-l'); if(slL && p.slopeL) { slL.value = p.slopeL; slL.dispatchEvent(new Event('change')); }
+            setTrig('master-gain', p.mg); 
+            setTrig('gain-l', p.gl); setTrig('hpf-l', p.hpfL); setTrig('lpf-l', p.lpfL);
+            setTrig('lim-thold-l', p.limTholdL); setTrig('lim-atk-l', p.limAtkL); setTrig('lim-rel-l', p.limRelL); // Load Limiter L
+            const slL = document.getElementById('slope-l'); if(slL && p.slopeL) { slL.value = p.slopeL; slL.dispatchEvent(new Event('change', { bubbles: true })); }
             if(p.geqL) {
                 p.geqL.forEach((v, i) => {
-                    const lSl = document.getElementById(`eq-l-${i}`); if(lSl) { lSl.value = v; lSl.dispatchEvent(new Event('input')); }
+                    const lSl = document.getElementById(`eq-l-${i}`); if(lSl) { lSl.value = v; lSl.dispatchEvent(new Event('input', { bubbles: true })); }
                 });
             }
 
             setTrig('gain-r', p.gr); setTrig('hpf-r', p.hpfR); setTrig('lpf-r', p.lpfR); setTrig('delay-r', p.delayR); setTrig('echo-feedback-r', p.fbackR); setTrig('echo-wet-r', p.wetR);
-            const slR = document.getElementById('slope-r'); if(slR && p.slopeR) { slR.value = p.slopeR; slR.dispatchEvent(new Event('change')); }
+            setTrig('lim-thold-r', p.limTholdR); setTrig('lim-atk-r', p.limAtkR); setTrig('lim-rel-r', p.limRelR); // Load Limiter R
+            const slR = document.getElementById('slope-r'); if(slR && p.slopeR) { slR.value = p.slopeR; slR.dispatchEvent(new Event('change', { bubbles: true })); }
             if(p.geqR) {
                 p.geqR.forEach((v, i) => {
-                    const rSl = document.getElementById(`eq-r-${i}`); if(rSl) { rSl.value = v; rSl.dispatchEvent(new Event('input')); }
+                    const rSl = document.getElementById(`eq-r-${i}`); if(rSl) { rSl.value = v; rSl.dispatchEvent(new Event('input', { bubbles: true })); }
                 });
             }
-            if(nodeL) nodeL.updateEQGains(); if(nodeR) nodeR.updateEQGains(); alert(`Preset "${nama}" berhasil di-load.`);
+
+            // FIX: Load DSP Sub Mode
+            if (p.dspMode) {
+                document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
+                const activeBtn = document.querySelector(`.btn-mode[data-mode="${p.dspMode}"]`);
+                if(activeBtn) activeBtn.classList.add('active');
+                currentMode = p.dspMode;
+                applyCurrentMode();
+            }
+
+            // FIX: Load State semua tombol (Mute / Phase / Bypasses)
+            if (p.muteState) {
+                Object.assign(muteState.l, p.muteState.l);
+                Object.assign(muteState.r, p.muteState.r);
+
+                const updateBtn = (id, state) => { const btn = document.getElementById(id); if(btn) btn.classList.toggle('active', state); };
+                
+                updateBtn('mute-ch-l', muteState.l.ch); updateBtn('phase-ch-l', muteState.l.phase);
+                updateBtn('byp-hpf-l', muteState.l.hpfByp); updateBtn('mute-hpf-l', muteState.l.hpfMute);
+                updateBtn('byp-lpf-l', muteState.l.lpfByp); updateBtn('mute-lpf-l', muteState.l.lpfMute);
+                updateBtn('mute-eq-l', muteState.l.eq); updateBtn('lim-mute-l', muteState.l.limMute);
+
+                updateBtn('mute-ch-r', muteState.r.ch); updateBtn('phase-ch-r', muteState.r.phase);
+                updateBtn('byp-hpf-r', muteState.r.hpfByp); updateBtn('mute-hpf-r', muteState.r.hpfMute);
+                updateBtn('byp-lpf-r', muteState.r.lpfByp); updateBtn('mute-lpf-r', muteState.r.lpfMute);
+                updateBtn('btn-echo-toggle-r', muteState.r.echo); updateBtn('mute-eq-r', muteState.r.eq);
+                updateBtn('lim-mute-r', muteState.r.limMute);
+                
+                // Mendorong state status tombol ke core audio DSP engine agar tersinkronisasi
+                if(nodeL) { nodeL.setMute(muteState.l.ch); nodeL.togglePhase(muteState.l.phase); }
+                if(nodeR) { nodeR.setMute(muteState.r.ch); nodeR.togglePhase(muteState.r.phase); }
+            }
+
+            if(nodeL) nodeL.updateEQGains(); if(nodeR) nodeR.updateEQGains(); 
+            alert(`Preset "${nama}" berhasil di-load dan disinkronkan ke DSP Engine.`);
         });
 
         document.getElementById('btn-activate-license').addEventListener('click', () => {
